@@ -1,0 +1,677 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ==========================================================================
+   1. Reset & design tokens
+   ========================================================================== */
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  text-decoration: none;
+  border: none;
+  outline: none;
+  font-family: 'Poppins', sans-serif;
+}
+
+:root {
+  /* Template palette */
+  --bgColor: #1f242d;
+  --sbgColor: #323946;
+  --textColor: #fff;
+  --mainColor: #0ef;
+  --alt-color: #1a2b3c;
+  --ol-color: #0e1022;
+
+  /* Extended palette */
+  --accent: #00eeff;
+  --accent-2: #4f8cff;
+  --accent-ink: #04252b;
+  --gradient: linear-gradient(120deg, var(--accent) 0%, var(--accent-2) 100%);
+  --surface: rgba(50, 57, 70, 0.42);
+  --surface-2: rgba(26, 43, 60, 0.5);
+  --surface-solid: #252b36;
+  --border: rgba(255, 255, 255, 0.08);
+  --border-soft: rgba(255, 255, 255, 0.05);
+  --border-strong: rgba(0, 238, 255, 0.3);
+  --muted: #9dabbd;
+  --grid-line: rgba(255, 255, 255, 0.05);
+  --shadow-soft: 0 2.4rem 7rem -2.4rem rgba(0, 0, 0, 0.85);
+  --shadow-glow: 0 0 4rem rgba(0, 238, 255, 0.16);
+  --radius-sm: 1rem;
+  --radius: 1.6rem;
+  --radius-lg: 2.4rem;
+  --container: 120rem;
+  --header-h: 8.4rem;
+
+  /* Typography system (from the original template) */
+  --font-size-base: 1.6rem;
+  --scale: 1.25;
+  --text-xs: calc(var(--font-size-base) / (var(--scale) * 1.1));
+  --text-sm: calc(var(--font-size-base) / 1.1);
+  --text-base: var(--font-size-base);
+  --text-lg: calc(var(--font-size-base) * 1.2);
+  --text-xl: calc(var(--font-size-base) * 1.5);
+  --text-2xl: calc(var(--font-size-base) * 2);
+  --text-3xl: calc(var(--font-size-base) * 2.5);
+  --text-4xl: calc(var(--font-size-base) * 3.2);
+  --text-5xl: calc(var(--font-size-base) * 4);
+  --text-6xl: calc(var(--font-size-base) * 5);
+  --text-7xl: calc(var(--font-size-base) * 6);
+
+  --leading-none: 1;
+  --leading-tight: 1.25;
+  --leading-snug: 1.375;
+  --leading-normal: 1.5;
+  --leading-relaxed: 1.625;
+  --leading-loose: 2;
+}
+
+/* Light theme — same layout, re-tuned contrast */
+[data-theme='light'] {
+  --bgColor: #eef3f8;
+  --sbgColor: #ffffff;
+  --textColor: #101820;
+  --mainColor: #0e7490;
+  --alt-color: #e2ebf3;
+  --ol-color: #e8eff6;
+
+  --accent: #0e7490;
+  --accent-2: #2563eb;
+  --accent-ink: #ffffff;
+  --surface: rgba(255, 255, 255, 0.78);
+  --surface-2: rgba(255, 255, 255, 0.62);
+  --surface-solid: #ffffff;
+  --border: rgba(16, 24, 32, 0.1);
+  --border-soft: rgba(16, 24, 32, 0.06);
+  --border-strong: rgba(14, 116, 144, 0.38);
+  --muted: #4d5f72;
+  --grid-line: rgba(16, 24, 32, 0.06);
+  --shadow-soft: 0 2.4rem 6rem -2.6rem rgba(16, 42, 66, 0.3);
+  --shadow-glow: 0 0 4rem rgba(14, 116, 144, 0.14);
+}
+
+html {
+  font-size: 62.5%;
+  overflow-x: hidden;
+  scroll-behavior: smooth;
+  scroll-padding-top: calc(var(--header-h) + 2rem);
+  scrollbar-color: rgba(0, 238, 255, 0.35) var(--bgColor);
+  scrollbar-width: thin;
+}
+
+body {
+  font-family: 'Poppins', sans-serif;
+  font-size: var(--font-size-base);
+  line-height: var(--leading-normal);
+  color: var(--textColor);
+  background-color: var(--bgColor);
+  background-image:
+    radial-gradient(60rem 60rem at 10% -8%, rgba(0, 238, 255, 0.1), transparent 60%),
+    radial-gradient(52rem 52rem at 92% 2%, rgba(79, 140, 255, 0.1), transparent 58%),
+    radial-gradient(70rem 70rem at 50% 112%, rgba(0, 238, 255, 0.06), transparent 62%);
+  background-attachment: fixed;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  transition: background-color 0.4s ease, color 0.4s ease;
+}
+
+[data-theme='light'] body {
+  background-image:
+    radial-gradient(60rem 60rem at 8% -10%, rgba(8, 145, 178, 0.12), transparent 62%),
+    radial-gradient(52rem 52rem at 94% 0%, rgba(37, 99, 235, 0.1), transparent 58%),
+    radial-gradient(70rem 70rem at 50% 112%, rgba(8, 145, 178, 0.07), transparent 62%);
+}
+
+#root {
+  isolation: isolate;
+  min-height: 100vh;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-weight: 600;
+  line-height: 1.15;
+  letter-spacing: -0.015em;
+  color: var(--textColor);
+}
+
+p {
+  color: var(--muted);
+}
+
+a {
+  color: inherit;
+}
+
+img,
+svg {
+  display: block;
+  max-width: 100%;
+}
+
+button {
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+  background: transparent;
+}
+
+::selection {
+  background: var(--mainColor);
+  color: var(--accent-ink);
+}
+
+:focus-visible {
+  outline: 2px solid var(--mainColor);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
+/* ==========================================================================
+   2. Typography scale (kept from the template)
+   ========================================================================== */
+
+.text-xs { font-size: var(--text-xs); line-height: var(--leading-tight); }
+.text-sm { font-size: var(--text-sm); line-height: var(--leading-tight); }
+.text-base { font-size: var(--text-base); line-height: var(--leading-normal); }
+.text-lg { font-size: var(--text-lg); line-height: var(--leading-normal); }
+.text-xl { font-size: var(--text-xl); line-height: var(--leading-snug); }
+.text-2xl { font-size: var(--text-2xl); line-height: var(--leading-snug); }
+.text-3xl { font-size: var(--text-3xl); line-height: var(--leading-tight); }
+.text-4xl { font-size: var(--text-4xl); line-height: var(--leading-tight); }
+.text-5xl { font-size: var(--text-5xl); line-height: var(--leading-tight); }
+.text-6xl { font-size: var(--text-6xl); line-height: var(--leading-tight); }
+
+.font-light { font-weight: 300; }
+.font-normal { font-weight: 400; }
+.font-medium { font-weight: 500; }
+.font-semibold { font-weight: 600; }
+.font-bold { font-weight: 700; }
+
+/* ==========================================================================
+   3. Layout primitives
+   ========================================================================== */
+
+.container {
+  width: min(var(--container), calc(100% - 7rem));
+  max-width: var(--container);
+  margin-inline: auto;
+  position: relative;
+}
+
+.section {
+  position: relative;
+  padding-block: 11rem;
+}
+
+.section-head {
+  max-width: 72rem;
+  margin: 0 auto 5.5rem;
+  text-align: center;
+}
+
+.section-head.left {
+  margin-inline: 0;
+  text-align: left;
+}
+
+.title {
+  font-size: clamp(3rem, 4.6vw, 4.8rem);
+  font-weight: 700;
+  line-height: 1.08;
+  letter-spacing: -0.02em;
+  text-transform: uppercase;
+  text-align: center;
+  color: var(--textColor);
+}
+
+.title::after {
+  content: '';
+  display: block;
+  width: 6.4rem;
+  height: 0.4rem;
+  margin: 2rem auto 0;
+  border-radius: 99px;
+  background: var(--gradient);
+  box-shadow: 0 0 1.8rem rgba(0, 238, 255, 0.55);
+}
+
+.section-head.left .title {
+  text-align: left;
+}
+
+.section-head.left .title::after {
+  margin-left: 0;
+}
+
+.title .accent {
+  background: var(--gradient);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.section-sub {
+  font-size: 1.7rem;
+  line-height: 1.75;
+  color: var(--muted);
+  margin-top: 2.2rem;
+  max-width: 64rem;
+}
+
+.section-head:not(.left) .section-sub {
+  margin-inline: auto;
+}
+
+.eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.9rem;
+  padding: 0.7rem 1.5rem;
+  border-radius: 99px;
+  border: 1px solid rgba(0, 238, 255, 0.22);
+  background: rgba(0, 238, 255, 0.07);
+  color: var(--mainColor);
+  font-size: 1.2rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  margin-bottom: 2.2rem;
+}
+
+.eyebrow .dot {
+  width: 0.7rem;
+  height: 0.7rem;
+  border-radius: 50%;
+  background: var(--mainColor);
+  box-shadow: 0 0 0 0 rgba(0, 238, 255, 0.6);
+  animation: pulseDot 2.4s ease-out infinite;
+  flex-shrink: 0;
+}
+
+.gradient-text {
+  background: var(--gradient);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.muted {
+  color: var(--muted);
+}
+
+/* ==========================================================================
+   4. Buttons
+   ========================================================================== */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.9rem;
+  padding: 1.4rem 2.8rem;
+  border-radius: 999px;
+  border: 1px solid transparent;
+  background: var(--mainColor);
+  color: var(--accent-ink);
+  font-size: 1.5rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  line-height: 1;
+  white-space: nowrap;
+  cursor: pointer;
+  box-shadow: 0 0 2.4rem rgba(0, 238, 255, 0.32);
+  transition: transform 0.25s ease, box-shadow 0.25s ease, background 0.25s ease,
+    color 0.25s ease, border-color 0.25s ease;
+}
+
+.btn:hover {
+  transform: translateY(-2px);
+  background: var(--mainColor);
+  color: var(--accent-ink);
+  box-shadow: 0 0 3.6rem rgba(0, 238, 255, 0.5);
+  filter: brightness(1.08);
+}
+
+.btn svg {
+  font-size: 1.8rem;
+  transition: transform 0.25s ease;
+}
+
+.btn:hover svg {
+  transform: translateX(2px);
+}
+
+.btn-outline {
+  background: transparent;
+  color: var(--textColor);
+  border-color: var(--border-strong);
+  box-shadow: none;
+}
+
+.btn-outline:hover {
+  background: rgba(0, 238, 255, 0.1);
+  border-color: var(--mainColor);
+  color: var(--mainColor);
+  box-shadow: var(--shadow-glow);
+  filter: none;
+}
+
+.btn-ghost {
+  background: transparent;
+  border-color: var(--border);
+  color: var(--muted);
+  box-shadow: none;
+}
+
+.btn-ghost:hover {
+  background: var(--surface);
+  color: var(--textColor);
+  border-color: var(--border-strong);
+  box-shadow: none;
+  filter: none;
+}
+
+.btn-sm {
+  padding: 1rem 1.8rem;
+  font-size: 1.35rem;
+}
+
+.btn-lg {
+  padding: 1.7rem 3.4rem;
+  font-size: 1.65rem;
+}
+
+.btn:disabled,
+.btn[aria-disabled='true'] {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+  filter: none;
+}
+
+/* ==========================================================================
+   5. Surfaces & utilities
+   ========================================================================== */
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.6rem 1.2rem;
+  border-radius: 99px;
+  border: 1px solid var(--border);
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--muted);
+  font-size: 1.25rem;
+  font-weight: 500;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.chip svg {
+  font-size: 1.4rem;
+  color: var(--mainColor);
+}
+
+[data-theme='light'] .chip {
+  background: rgba(16, 24, 32, 0.04);
+}
+
+.grid-overlay {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image: linear-gradient(to right, var(--grid-line) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--grid-line) 1px, transparent 1px);
+  background-size: 6rem 6rem;
+  -webkit-mask-image: radial-gradient(circle at 50% 35%, #000 0%, transparent 72%);
+  mask-image: radial-gradient(circle at 50% 35%, #000 0%, transparent 72%);
+}
+
+.reveal {
+  opacity: 0;
+  transform: translateY(2.4rem);
+  transition: opacity 0.7s cubic-bezier(0.22, 1, 0.36, 1),
+    transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.reveal.is-visible {
+  opacity: 1;
+  transform: none;
+}
+
+.skip-link {
+  position: fixed;
+  top: 1.2rem;
+  left: 1.2rem;
+  z-index: 3000;
+  padding: 1rem 1.8rem;
+  border-radius: 99px;
+  background: var(--mainColor);
+  color: var(--accent-ink);
+  font-size: 1.4rem;
+  font-weight: 600;
+  transform: translateY(-200%);
+  transition: transform 0.25s ease;
+}
+
+.skip-link:focus-visible {
+  transform: translateY(0);
+  outline-offset: 4px;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 1rem;
+  height: 1rem;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bgColor);
+}
+
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(var(--accent), var(--accent-2));
+  border: 2px solid var(--bgColor);
+  border-radius: 99px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(var(--accent-2), var(--accent));
+}
+
+@layer utilities {
+  .custom-scrollbar {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(6, 182, 212, 0.3) transparent;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    background: rgba(6, 182, 212, 0.3);
+    border: 0;
+    border-radius: 3px;
+    transition: background 0.2s;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: rgba(6, 182, 212, 0.5);
+  }
+}
+
+/* ==========================================================================
+   6. Keyframes
+   ========================================================================== */
+
+@keyframes pulseDot {
+  0% { box-shadow: 0 0 0 0 rgba(0, 238, 255, 0.55); }
+  70% { box-shadow: 0 0 0 0.8rem rgba(0, 238, 255, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(0, 238, 255, 0); }
+}
+
+@keyframes float {
+  from { transform: translateY(0); }
+  to { transform: translateY(-1.4rem); }
+}
+
+@keyframes blink {
+  0%, 45% { opacity: 1; }
+  50%, 95% { opacity: 0; }
+  100% { opacity: 1; }
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes spinReverse {
+  to { transform: rotate(-360deg); }
+}
+
+@keyframes marquee {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes pageIn {
+  from { opacity: 0; transform: translateY(1.2rem); }
+  to { opacity: 1; transform: none; }
+}
+
+@keyframes popIn {
+  0% { opacity: 0; transform: translateY(2rem) scale(0.97); }
+  100% { opacity: 1; transform: none; }
+}
+
+@keyframes shine {
+  from { background-position: 0% 50%; }
+  to { background-position: 200% 50%; }
+}
+
+@keyframes wheel {
+  0% { opacity: 0; transform: translateY(-0.4rem); }
+  30% { opacity: 1; }
+  70% { opacity: 1; }
+  100% { opacity: 0; transform: translateY(0.9rem); }
+}
+
+/* ==========================================================================
+   7. Responsive base
+   ========================================================================== */
+
+@media (min-width: 640px) {
+  :root {
+    --font-size-base: 1.8rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  :root {
+    --font-size-base: 2rem;
+  }
+
+  .section {
+    padding-block: 13rem;
+  }
+}
+
+@media (max-width: 900px) {
+  .container {
+    width: calc(100% - 5rem);
+  }
+
+  .section {
+    padding-block: 9rem;
+  }
+}
+
+@media (max-width: 600px) {
+  .container {
+    width: calc(100% - 3.6rem);
+  }
+
+  .section {
+    padding-block: 7.5rem;
+  }
+
+  .section-head {
+    margin-bottom: 4rem;
+  }
+
+  .eyebrow {
+    font-size: 1.05rem;
+    letter-spacing: 0.1em;
+    padding: 0.6rem 1.2rem;
+  }
+
+  .btn {
+    padding: 1.3rem 2.2rem;
+    font-size: 1.4rem;
+  }
+}
+
+/* iOS Safari 100vh fix (from the template) */
+@supports (-webkit-touch-callout: none) {
+  .home {
+    min-height: -webkit-fill-available;
+  }
+}
+
+/* Landscape phones */
+@media screen and (max-height: 500px) and (orientation: landscape) {
+  .section {
+    padding-block: 6rem;
+  }
+}
+
+/* Motion preferences */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  .reveal {
+    opacity: 1;
+    transform: none;
+  }
+}
