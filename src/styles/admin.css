@@ -1514,10 +1514,16 @@
   color: #92400e;
 }
 
-.adm-alert-warn strong {
+.adm-alert strong {
   display: block;
   margin-bottom: 0.4rem;
   font-size: 1.3rem;
+}
+
+.adm-alert > div {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
 }
 
 .adm-alert-warn ol {
@@ -1553,6 +1559,39 @@
   color: var(--mainColor);
 }
 
+
+/* ---------- Session check ---------------------------------------------- */
+
+.adm-boot {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  min-height: 100vh;
+  background: var(--bgColor);
+  color: var(--muted);
+  font-size: 1.4rem;
+}
+
+.adm-boot-dot {
+  width: 0.7rem;
+  height: 0.7rem;
+  border-radius: 50%;
+  background: var(--mainColor);
+  animation: adm-pulse 1.1s ease-in-out infinite;
+}
+
+@keyframes adm-pulse {
+  0%,
+  100% {
+    opacity: 0.35;
+    transform: scale(0.85);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
 
 /* ---------- Responsive -------------------------------------------------- */
 

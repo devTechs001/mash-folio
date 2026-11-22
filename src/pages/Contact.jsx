@@ -11,7 +11,7 @@ import {
 import SocialLinks, { getSocialIcon } from '../components/SocialLinks';
 import { useContent } from '../context/ContentContext';
 import { useScrollReveal } from '../utils/useScrollReveal';
-import { addMessage } from '../utils/messages';
+import { api } from '../lib/api';
 import '../styles/Contact.css';
 
 const EMPTY_FORM = { name: '', email: '', subject: '', message: '' };
@@ -55,6 +55,7 @@ export default function Contact() {
   const [form, setForm] = useState(EMPTY_FORM);
   const [errors, setErrors] = useState({});
   const [status, setStatus] = useState('idle'); // idle | sending | sent
+  const [sendError, setSendError] = useState('');
   const revealRef = useScrollReveal();
 
   const handleChange = (event) => {
@@ -79,25 +80,26 @@ export default function Contact() {
     }
 
     setStatus('sending');
+    setSendError('');
 
-    // ── Integration point ────────────────────────────────────────────────
-    // This is a front-end demo: nothing is sent anywhere. Replace the timeout
-    // below with a real request, e.g.
-    //   await fetch('https://formspree.io/f/your-id', { method: 'POST', body: ... })
-    // or EmailJS / your own API endpoint.
-    await new Promise((resolve) => {
-      setTimeout(resolve, 1200);
-    });
-
-    // Store locally so the owner can read it in /admin/messages.
-    addMessage(form);
-
-    setStatus('sent');
+    try {
+      // POST /api/messages — validated and stored by the Express server.
+      await api.sendMessage(form);
+      setStatus('sent');
+    } catch (error) {
+      setStatus('idle');
+      setSendError(
+        error.code === 'network_error'
+          ? 'The server is not reachable right now. Please email me directly.'
+          : error.message
+      );
+    }
   };
 
   const resetForm = () => {
     setForm(EMPTY_FORM);
     setErrors({});
+    setSendError('');
     setStatus('idle');
   };
 
@@ -229,6 +231,13 @@ export default function Contact() {
                     {...inputProps('message')}
                   />
                 </Field>
+
+                {sendError && (
+                  <p className="form-error" role="alert">
+                    <FiAlertCircle aria-hidden="true" />
+                    {sendError}
+                  </p>
+                )}
 
                 <button type="submit" className="btn btn-lg submit-btn" disabled={status === 'sending'}>
                   {status === 'sending' ? (

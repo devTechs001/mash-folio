@@ -30,3 +30,7 @@ Thumbs.db
 coverage/
 .cache/
 .vite/
+
+# Backend data (content + messages)
+server/data/*
+!server/data/.gitkeep

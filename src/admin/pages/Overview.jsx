@@ -25,8 +25,7 @@ const frontPages = [
 export default function Overview() {
   const { content } = useContent();
   const { email, session } = useAuth();
-  const messages = useMessages();
-  const unread = messages.filter((message) => !message.read).length;
+  const { messages, unread } = useMessages();
 
   const stats = [
     { label: 'Projects', value: content.projects.length, to: '/admin/projects', icon: FiFolder },

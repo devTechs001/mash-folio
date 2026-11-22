@@ -1,12 +1,12 @@
-import { createContext, useContext, useEffect, useMemo, useState } from 'react';
+import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import * as seed from '../utils/data';
+import { api } from '../lib/api';
 
 const STORAGE_KEY = 'mash-folio-content-v1';
 
 /**
- * Everything the public site renders lives here. The admin dashboard edits this
- * object and persists it to localStorage, so changes show up on the front pages
- * immediately (and across tabs via the storage event).
+ * The default document is also the shape the API validates. Public pages read
+ * the server copy; the dashboard writes it back through the Express API.
  */
 const defaultContent = {
   profile: seed.profile,
@@ -26,14 +26,37 @@ const defaultContent = {
 
 const ContentContext = createContext(null);
 
+const LINK_KEYS = new Set(['href', 'url', 'source', 'live']);
+const SAFE_URL = /^(https?:|mailto:|tel:|\/|#)/i;
+
+function guardLinks(value) {
+  if (Array.isArray(value)) return value.map(guardLinks);
+
+  if (value && typeof value === 'object') {
+    const out = {};
+
+    for (const [key, entry] of Object.entries(value)) {
+      if (LINK_KEYS.has(key) && typeof entry === 'string' && entry.trim() !== '') {
+        const link = entry.trim();
+        if (!SAFE_URL.test(link)) {
+          throw new Error(`Unsafe link "${link}". Use http(s), mailto, tel or a relative path.`);
+        }
+        out[key] = link;
+      } else {
+        out[key] = guardLinks(entry);
+      }
+    }
+
+    return out;
+  }
+
+  return value;
+}
+
 function clone(value) {
   return JSON.parse(JSON.stringify(value));
 }
 
-/**
- * Merge a candidate object with the defaults and guard against malformed data,
- * so a bad import can never blank out the site.
- */
 function normalizeContent(candidate) {
   if (!candidate || typeof candidate !== 'object' || Array.isArray(candidate)) {
     throw new Error('Content must be a JSON object.');
@@ -69,83 +92,114 @@ function normalizeContent(candidate) {
     lines: arrayOr(next.heroCode.lines, defaultContent.heroCode.lines),
   };
 
-  return next;
+  return guardLinks(next);
 }
 
-function loadContent() {
-  if (typeof window === 'undefined') return clone(defaultContent);
-
+function readCache() {
+  if (typeof window === 'undefined') return null;
   try {
     const raw = window.localStorage.getItem(STORAGE_KEY);
-    if (!raw) return clone(defaultContent);
-    return normalizeContent(JSON.parse(raw));
+    return raw ? normalizeContent(JSON.parse(raw)) : null;
   } catch (error) {
-    return clone(defaultContent);
+    return null;
+  }
+}
+
+function writeCache(content) {
+  if (typeof window === 'undefined') return;
+  try {
+    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(content));
+  } catch (error) {
+    /* cache is best-effort */
   }
 }
 
 export function ContentProvider({ children }) {
-  const [content, setContent] = useState(loadContent);
+  const [content, setContent] = useState(() => readCache() ?? clone(defaultContent));
+  const [status, setStatus] = useState('loading'); // loading | ready | offline
+  const [saveState, setSaveState] = useState('idle'); // idle | saving | saved | error | locked
   const [lastSavedAt, setLastSavedAt] = useState(null);
 
-  useEffect(() => {
-    try {
-      window.localStorage.setItem(STORAGE_KEY, JSON.stringify(content));
-      setLastSavedAt(Date.now());
-    } catch (error) {
-      /* storage may be full or blocked — edits still work for this session */
-    }
-  }, [content]);
+  const latest = useRef(content);
+  const timer = useRef(null);
 
   useEffect(() => {
-    const onStorage = (event) => {
-      if (event.key !== STORAGE_KEY) return;
-      try {
-        if (!event.newValue) {
-          setContent(clone(defaultContent));
-          return;
+    let cancelled = false;
+
+    api
+      .getContent()
+      .then((data) => {
+        if (cancelled) return;
+
+        if (data?.content) {
+          const next = normalizeContent(data.content);
+          latest.current = next;
+          setContent(next);
+          writeCache(next);
         }
-        setContent(normalizeContent(JSON.parse(event.newValue)));
-      } catch (error) {
-        /* ignore malformed cross-tab data */
-      }
-    };
 
-    window.addEventListener('storage', onStorage);
-    return () => window.removeEventListener('storage', onStorage);
+        setLastSavedAt(data?.updatedAt ? Date.parse(data.updatedAt) : null);
+        setStatus('ready');
+      })
+      .catch(() => {
+        if (!cancelled) setStatus('offline');
+      });
+
+    return () => {
+      cancelled = true;
+      clearTimeout(timer.current);
+    };
   }, []);
+
+  const persist = useCallback((next) => {
+    writeCache(next);
+    setSaveState('saving');
+    clearTimeout(timer.current);
+
+    timer.current = setTimeout(async () => {
+      try {
+        const data = await api.saveContent(next);
+        setSaveState('saved');
+        setLastSavedAt(data?.updatedAt ? Date.parse(data.updatedAt) : Date.now());
+      } catch (error) {
+        setSaveState(error.status === 401 ? 'locked' : 'error');
+      }
+    }, 500);
+  }, []);
+
+  const commit = useCallback(
+    (mutator) => {
+      const candidate = typeof mutator === 'function' ? mutator(latest.current) : mutator;
+      const next = normalizeContent(candidate);
+
+      latest.current = next;
+      setContent(next);
+      persist(next);
+      return next;
+    },
+    [persist]
+  );
 
   const value = useMemo(
     () => ({
       ...content,
       content,
+      status,
+      saveState,
       lastSavedAt,
       storageKey: STORAGE_KEY,
 
-      setSection: (key, nextValue) => {
-        setContent((current) => ({ ...current, [key]: nextValue }));
-      },
+      setSection: (key, nextValue) => commit((current) => ({ ...current, [key]: nextValue })),
 
-      updateMany: (partial) => {
-        setContent((current) => ({ ...current, ...partial }));
-      },
+      updateMany: (partial) => commit((current) => ({ ...current, ...partial })),
 
-      updateProfile: (patch) => {
-        setContent((current) => ({ ...current, profile: { ...current.profile, ...patch } }));
-      },
+      updateProfile: (patch) =>
+        commit((current) => ({ ...current, profile: { ...current.profile, ...patch } })),
 
-      updateAbout: (patch) => {
-        setContent((current) => ({ ...current, about: { ...current.about, ...patch } }));
-      },
+      updateAbout: (patch) =>
+        commit((current) => ({ ...current, about: { ...current.about, ...patch } })),
 
-      reset: () => {
-        try {
-          window.localStorage.removeItem(STORAGE_KEY);
-        } catch (error) {
-          /* ignore */
-        }
-        setContent(clone(defaultContent));
-      },
+      reset: () => commit(() => clone(defaultContent)),
 
       exportJSON: () => JSON.stringify(content, null, 2),
 
@@ -158,12 +212,12 @@ export function ContentProvider({ children }) {
           throw new Error('That file is not valid JSON.');
         }
 
-        const next = normalizeContent(parsed);
-        setContent(next);
-        return next;
+        const normalized = normalizeContent(parsed);
+        commit(() => normalized);
+        return normalized;
       },
     }),
-    [content, lastSavedAt]
+    [content, status, saveState, lastSavedAt, commit]
   );
 
   return <ContentContext.Provider value={value}>{children}</ContentContext.Provider>;

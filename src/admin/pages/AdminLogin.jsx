@@ -1,25 +1,43 @@
 import { useState } from 'react';
 import { Link, Navigate, useLocation, useNavigate } from 'react-router-dom';
-import { FiAlertCircle, FiArrowLeft, FiEye, FiEyeOff, FiLock, FiMail, FiShield } from 'react-icons/fi';
+import {
+  FiAlertCircle,
+  FiArrowLeft,
+  FiEye,
+  FiEyeOff,
+  FiLock,
+  FiMail,
+  FiServer,
+  FiShield,
+} from 'react-icons/fi';
 import { useAuth } from '../../context/AuthContext';
 
 export default function AdminLogin() {
-  const { login, isAuthenticated, configured, sessionHours } = useAuth();
+  const { login, isAuthenticated, configured, offline, sessionHours, status } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
 
-  const [form, setForm] = useState({ email: '', password: '', remember: false });
+  const [form, setForm] = useState({ email: '', password: '' });
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
+
+  if (status === 'loading') {
+    return (
+      <div className="adm-boot" role="status" aria-live="polite">
+        <span className="adm-boot-dot" aria-hidden="true" />
+        Checking your session…
+      </div>
+    );
+  }
 
   if (isAuthenticated) return <Navigate to="/admin" replace />;
 
   const from = location.state?.from?.pathname ?? '/admin';
 
   const handleChange = (event) => {
-    const { name, value, type, checked } = event.target;
-    setForm((current) => ({ ...current, [name]: type === 'checkbox' ? checked : value }));
+    const { name, value } = event.target;
+    setForm((current) => ({ ...current, [name]: value }));
   };
 
   const handleSubmit = async (event) => {
@@ -65,21 +83,32 @@ export default function AdminLogin() {
           Sign in to edit the profile, projects and every front page of this portfolio.
         </p>
 
-        {!configured && (
+        {offline && (
+          <div className="adm-alert adm-alert-error" role="alert">
+            <FiServer aria-hidden="true" />
+            <div>
+              <strong>The API is not reachable.</strong>
+              Start the backend with <code>npm run dev</code> (Vite + Express together), or{' '}
+              <code>npm run api</code> if the frontend is already running.
+            </div>
+          </div>
+        )}
+
+        {!offline && !configured && (
           <div className="adm-alert adm-alert-warn" role="alert">
             <FiShield aria-hidden="true" />
             <div>
-              <strong>Admin is not configured yet.</strong>
+              <strong>Admin is not configured on the server.</strong>
               <ol>
                 <li>
                   Copy <code>.env.example</code> to <code>.env.local</code>.
                 </li>
                 <li>
-                  Generate a hash: <code>npm run auth:hash &quot;your-password&quot;</code>.
+                  Generate a hash: <code>npm run auth:hash -- &quot;your-password&quot;</code>.
                 </li>
                 <li>
-                  Set <code>VITE_ADMIN_EMAIL</code> and <code>VITE_ADMIN_PASSWORD_HASH</code>, then
-                  restart the dev server (or add them in Render).
+                  Set <code>ADMIN_EMAIL</code> and <code>ADMIN_PASSWORD_HASH</code>, then restart
+                  the Node server (or add them in Render).
                 </li>
               </ol>
             </div>
@@ -101,6 +130,7 @@ export default function AdminLogin() {
                 value={form.email}
                 onChange={handleChange}
                 required
+                autoFocus
               />
             </span>
           </label>
@@ -132,16 +162,10 @@ export default function AdminLogin() {
           </label>
 
           <div className="adm-auth-row">
-            <label className="adm-check">
-              <input
-                type="checkbox"
-                name="remember"
-                checked={form.remember}
-                onChange={handleChange}
-              />
-              <span>Keep me signed in on this device</span>
-            </label>
-            <span className="adm-hint">{sessionHours}h session</span>
+            <span className="adm-hint">Owner account — no public sign-up.</span>
+            <span className="adm-hint">
+              {sessionHours ? `${sessionHours}h session` : 'Server-verified session'}
+            </span>
           </div>
 
           {error && (
@@ -158,8 +182,8 @@ export default function AdminLogin() {
 
         <p className="adm-auth-note">
           <FiShield aria-hidden="true" />
-          Credentials live in environment variables — only a SHA-256 hash is bundled. For
-          production-grade enforcement, pair this with a server or edge function.
+          Credentials are checked by the Express API against its environment; only a SHA-256 hash is
+          stored, and the browser gets an HttpOnly session cookie.
         </p>
       </main>
     </div>
