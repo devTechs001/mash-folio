@@ -54,8 +54,13 @@ const groups = [
   },
 ];
 
-function savedLabel(timestamp) {
-  if (!timestamp) return 'Autosave on';
+function savedLabel(saveState, timestamp) {
+  if (saveState === 'saving') return 'Saving changes…';
+  if (saveState === 'error') return 'Saved locally — API unavailable';
+  if (saveState === 'locked') return 'Sign in again to save';
+
+  if (!timestamp) return 'All changes saved';
+
   try {
     return `Saved ${new Date(timestamp).toLocaleTimeString([], {
       hour: '2-digit',
@@ -68,14 +73,12 @@ function savedLabel(timestamp) {
 
 export default function AdminLayout() {
   const { logout, email, session } = useAuth();
-  const { lastSavedAt } = useContent();
+  const { lastSavedAt, saveState } = useContent();
   const { theme, toggle } = useTheme();
-  const messages = useMessages();
+  const { unread } = useMessages();
   const navigate = useNavigate();
   const location = useLocation();
   const [navOpen, setNavOpen] = useState(false);
-
-  const unread = messages.filter((message) => !message.read).length;
 
   const closeNav = () => setNavOpen(false);
 
@@ -100,8 +103,8 @@ export default function AdminLayout() {
     };
   }, [navOpen]);
 
-  const signOut = () => {
-    logout();
+  const signOut = async () => {
+    await logout();
     navigate('/admin/login', { replace: true });
   };
 
@@ -142,7 +145,7 @@ export default function AdminLayout() {
 
         <span className="adm-saved" role="status" aria-live="polite">
           <span className="adm-saved-dot" aria-hidden="true" />
-          {savedLabel(lastSavedAt)}
+          {savedLabel(saveState, lastSavedAt)}
         </span>
 
         <div className="adm-topbar-actions">
@@ -225,7 +228,8 @@ export default function AdminLayout() {
               <p className="adm-sidebar-email">{email}</p>
               {expiry && <p className="adm-sidebar-meta">Session ends {expiry}</p>}
               <p className="adm-sidebar-meta">
-                Changes are saved in this browser. Export a backup from Settings.
+                Changes save to the API and are cached in this browser. Export a backup from
+                Settings.
               </p>
             </div>
           </div>

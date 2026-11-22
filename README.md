@@ -2,10 +2,11 @@
 
 A modern, single-page-style portfolio for **Mash**, a full-stack developer in Nairobi —
 built with **React + Vite + Tailwind CSS** on top of the dark/cyan design template
-(Poppins, `#1f242d` ink, `#0ef` neon accent, 10px rem scale).
+(Poppins, `#1f242d` ink, `#0ef` neon accent, 10px rem scale), with a **Node + Express**
+backend for the owner dashboard.
 
-Routes: `/`, `/about`, `/projects`, `/contact` (plus a styled 404) and an
-owner-only dashboard at `/admin`.
+Public routes: `/`, `/about`, `/projects`, `/contact` (plus a styled 404).
+Owner routes: `/admin` (server-verified sign-in).
 
 ## What's inside
 
@@ -23,20 +24,30 @@ owner-only dashboard at `/admin`.
 
 **About page** — narrative intro, stats, services, experience timeline, toolkit.
 **Projects page** — filterable grid, featured card, case-study drawer with deep detail.
-**Contact page** — validated form (sending/success states), contact cards and a
-**socials grid** for every profile.
+**Contact page** — validated form (sending/success/error states), contact cards and a
+**socials grid** for every profile. Submissions are stored by the API.
 
-**Owner dashboard** (`/admin`)
+**Owner dashboard** (`/admin`) — server-backed:
 
-- Email + password sign-in against environment variables, with an expiring session
-  (`localStorage` when “keep me signed in”, `sessionStorage` otherwise).
+- Email + password sign-in verified by Express against environment variables. The
+  browser receives an `HttpOnly`, `SameSite=Lax` session cookie — no password or hash
+  ships in the bundle.
+- Sessions expire after `ADMIN_SESSION_HOURS`; a timer and the route guard sign you out.
 - A drawer-based control panel (no dropdowns) with one section per front-page system:
   profile & hero, about/stats/experience, skills & tech stack, socials, projects,
   services, process, testimonials, writing, inbox and settings.
-- Edits autosave to `localStorage` and render on the public site immediately, in this
-  tab and across tabs. Export/import JSON backups and reset to the seeded content.
-- The contact form feeds the dashboard inbox; messages can be read, replied to,
-  marked read/unread and deleted.
+- Edits autosave to `PUT /api/content` and appear on the public site immediately for
+  every visitor (with a local cache for instant paint).
+- Contact form → `POST /api/messages` → dashboard inbox: read, reply, mark
+  read/unread, delete.
+- Export/import JSON backups and reset to seeded defaults.
+
+**Backend** (`server/`) — Express 4:
+
+- JSON-file persistence with atomic, serialized writes (`content.json`, `messages.json`).
+- Owner auth, rate-limited login and message endpoints, validation for every payload.
+- Serves the built SPA in production with SPA fallback, cache headers and security
+  headers.
 
 **Site chrome**
 
@@ -56,181 +67,209 @@ owner-only dashboard at `/admin`.
 
 ## Stack
 
-| Layer      | Choice                                  |
-| ---------- | --------------------------------------- |
-| Framework  | React 18                                |
-| Build tool | Vite 6                                  |
-| Routing    | React Router 6                          |
-| Styling    | Tailwind CSS 3 + hand-written CSS        |
-| Icons      | `react-icons` (Feather + Simple Icons)  |
-| Fonts      | Poppins (Google Fonts)                  |
+| Layer      | Choice                                     |
+| ---------- | ------------------------------------------ |
+| Frontend   | React 18                                   |
+| Build tool | Vite 6                                     |
+| Routing    | React Router 6                             |
+| Styling    | Tailwind CSS 3 + hand-written CSS           |
+| Icons      | `react-icons` (Feather + Simple Icons)     |
+| Backend    | Node 20+ / Express 4                       |
+| Storage    | JSON files (`server/data`)                 |
+| Auth       | SHA-256 password digest + session cookie   |
+| Fonts      | Poppins (Google Fonts)                     |
 
 ## Getting started
 
 ```bash
 npm install
-npm run dev      # http://localhost:5173
-npm run build    # production build to dist/
-npm run preview  # serve the build locally
-
-# owner dashboard credentials (copy the template first)
 cp .env.example .env.local
-npm run auth:hash -- "your-password"   # paste into VITE_ADMIN_PASSWORD_HASH
+npm run auth:hash -- "your-password"   # paste into ADMIN_PASSWORD_HASH
+npm run dev                            # Vite :5173 + API :4000
 ```
+
+`npm run dev` starts both processes; Vite proxies `/api` to Express, so the browser
+only ever talks to one origin. Open http://localhost:5173, and sign in at `/admin`.
+
+| Script          | What it does                                             |
+| --------------- | -------------------------------------------------------- |
+| `npm run dev`   | Vite + Express together (API on `:4000`)                 |
+| `npm run dev:web` | Vite only                                              |
+| `npm run dev:api` | Express only, with `node --watch`                      |
+| `npm run build` | Production frontend build to `dist/`                     |
+| `npm start`     | Express serves the API + `dist/`                         |
+| `npm run api`   | Express without watch (API + `dist/` if built)           |
+| `npm run preview` | Build, then serve API + `dist/`                        |
+| `npm test`      | API tests with the built-in Node test runner             |
+| `npm run auth:hash` | Print the SHA-256 digest for a password              |
 
 ## Project structure
 
 ```
 index.html
-render.yaml                # Render Blueprint (static site + SPA rewrite)
-vercel.json                # Vercel SPA rewrite
-public/_redirects          # Netlify SPA fallback
+render.yaml                # Render Blueprint (Node web service)
+vercel.json                # Vercel SPA rewrite (frontend only)
+public/_redirects          # Netlify SPA fallback (frontend only)
+server/
+  index.js                 # loads env, starts Express on PORT
+  app.js                   # routes: health, auth, content, messages, SPA
+  data/                    # content.json + messages.json (git-ignored)
+  lib/
+    auth.js                # SHA-256 verify, sessions, cookies
+    config.js              # env loading + config
+    store.js               # atomic JSON stores
+    validation.js          # content + message payload guards
+  test/api.test.js         # API integration tests
+scripts/
+  dev.mjs                  # runs Vite + Express together
+  hash-password.mjs        # npm run auth:hash
 src/
   main.jsx                 # React root + BrowserRouter
-  App.jsx                  # routes, theme, social rail, scroll progress, 404
-  App.css                  # header, nav drawer, social rail, footer, chrome
-  index.css                # reset, design tokens, typography, buttons, utilities
-  assets/about-visual.jpg
-  components/
-    Navbar.jsx             # desktop nav + mobile navigation drawer
-    Hero.jsx
-    Drawer.jsx             # accessible side-drawer primitive
-    ProjectDrawer.jsx      # case-study drawer content
-    TechChips.jsx
-    Services.jsx
-    SelectedWork.jsx
-    Process.jsx
-    Testimonials.jsx
-    Writing.jsx
-    SocialLinks.jsx
-    SocialRail.jsx
-  pages/
-    LandingPage.jsx        # hero + all landing sections
-    About.jsx
-    Projects.jsx
-    ProjectCard.jsx        # card (reused on landing + projects page)
-    Skills.jsx
-    Contact.jsx
-    Footer.jsx
-  styles/
-    LandingPage.css        # hero, about, services, skills, process, testimonials…
-    Projects.css           # filters, cards, case-study drawer
-    Contact.css            # contact cards, form, socials grid
+  App.jsx                  # providers, routes, social rail, scroll progress, 404
+  lib/api.js               # typed-ish fetch wrapper for /api
   context/
     ThemeContext.jsx       # theme + localStorage persistence
-    AuthContext.jsx        # owner session, SHA-256 login, expiry
-    ContentContext.jsx     # editable content store (seeded from data.js)
+    AuthContext.jsx        # server session (/me), login, logout, expiry
+    ContentContext.jsx     # API content + local cache + debounced saves
   admin/
     AdminRoutes.jsx        # /admin/login + protected dashboard routes
-    AdminLayout.jsx        # top bar, drawer navigation, autosave status
-    RequireOwner.jsx       # redirects signed-out visitors to the login screen
-    useMessages.js         # live inbox hook
+    AdminLayout.jsx        # top bar, drawer navigation, save status
+    RequireOwner.jsx       # waits for /me, then guards routes
+    useMessages.js         # inbox hook backed by /api/messages
     components/AdminUI.jsx # form controls, list + collection editors
     pages/                 # overview, profile, about, skills, socials, projects,
                            #   services, process, testimonials, writing, messages,
                            #   settings, login
+  components/ …            # navbar, hero, drawers, sections
+  pages/ …                 # landing, about, projects, project card, skills, contact, footer
+  styles/
+    LandingPage.css
+    Projects.css
+    Contact.css
+    admin.css              # dashboard layout, forms, login, drawers
   utils/
-    data.js                # DEFAULT content (seed for the dashboard)
-    messages.js            # contact-form → localStorage inbox helpers
-    techIcons.js           # tech name → icon map (with fallback)
-    useScrollReveal.js     # reveal-on-scroll hook
-  styles/admin.css         # dashboard layout, forms, login, responsive drawers
-  scripts/hash-password.mjs  # npm run auth:hash → SHA-256 hex
+    data.js                # DEFAULT content (seed + fallback)
+    techIcons.js
+    useScrollReveal.js
 ```
+
+## API
+
+All routes are JSON. Owner routes require the session cookie set by login.
+
+| Method   | Route                 | Access | Purpose                            |
+| -------- | --------------------- | ------ | ---------------------------------- |
+| `GET`    | `/api/health`         | public | Liveness + admin configuration flag |
+| `GET`    | `/api/auth/me`        | public | Session + `configured` status       |
+| `POST`   | `/api/auth/login`     | public | Verify credentials, set cookie      |
+| `POST`   | `/api/auth/logout`    | public | Destroy session, clear cookie       |
+| `GET`    | `/api/content`        | public | Current content document            |
+| `PUT`    | `/api/content`        | owner  | Save the whole content document     |
+| `POST`   | `/api/messages`       | public | Contact form submission (rate-limited) |
+| `GET`    | `/api/messages`       | owner  | Inbox + unread count                |
+| `PATCH`  | `/api/messages/:id`   | owner  | Mark read / unread                  |
+| `DELETE` | `/api/messages/:id`   | owner  | Delete one message                  |
+| `DELETE` | `/api/messages`       | owner  | Clear the inbox                     |
+
+`GET /api/content` returns `{ "content": null, "updatedAt": null }` until the owner
+saves for the first time; the frontend then renders the seeded defaults from
+`src/utils/data.js`.
+
+## Admin dashboard
+
+### Configuration
+
+| Variable                  | Purpose                                               |
+| ------------------------- | ----------------------------------------------------- |
+| `ADMIN_EMAIL`             | The single email allowed to sign in.                  |
+| `ADMIN_PASSWORD_HASH`     | SHA-256 hex digest of the password (not the password). |
+| `ADMIN_SESSION_HOURS`     | Session lifetime in hours (default `8`).               |
+| `PORT`                    | Express port (default `4000`, Render sets it).         |
+| `DATA_DIR`                | Where JSON data lives (default `server/data`).         |
+| `VITE_API_URL`            | Optional absolute API origin if the frontend is hosted elsewhere. |
+
+Generate hashes with `npm run auth:hash -- "your-password"`. Set the variables in
+`.env.local` for development and in your host's environment for production. Secrets
+are read by `server/index.js` only — they are never bundled into the browser build.
+
+### Sessions and security
+
+- Passwords are never stored; the server compares SHA-256 digests with
+  `crypto.timingSafeEqual`.
+- Login and message endpoints are rate-limited per IP; every payload is validated.
+- Cookies are `HttpOnly`, `SameSite=Lax`, and `Secure` in production.
+- Sessions live in server memory: restarting the server signs everyone out.
+- Content and messages are written atomically to JSON files. On hosts with an
+  ephemeral filesystem (Render free tier), attach a persistent disk at `DATA_DIR` or
+  swap `server/lib/store.js` for a database.
+
+### Backups
+
+**Settings → Export JSON** downloads a snapshot. Import a file (or paste JSON) to
+restore, and **Reset** returns to the seeded defaults. The same document lives at
+`server/data/content.json` on the server.
 
 ## Make it yours
 
-1. **Content** — sign in at `/admin` and edit the site without touching code, or
-   change the defaults in `src/utils/data.js`. Everything is data-driven: profile and
-   socials (with handles), bio, stats, services, skills and levels, tech stack,
-   experience, projects, process steps, testimonials and articles. Replace the
-   placeholder email (`hello@mashfolio.dev`) and social URLs; empty
-   `links.live`/`links.source` hide those buttons automatically.
+1. **Content** — sign in at `/admin` and edit the site without touching code, or change
+   the defaults in `src/utils/data.js`. Everything is data-driven: profile and socials
+   (with handles), bio, stats, services, skills and levels, tech stack, experience,
+   projects, process steps, testimonials and articles. Replace the placeholder email
+   (`hello@mashfolio.dev`) and social URLs; empty `links.live`/`links.source` hide
+   those buttons automatically.
 2. **Images** — swap `src/assets/about-visual.jpg` for your own square photo or
    artwork (≈900×900, compressed).
 3. **Colours & type** — tokens at the top of `src/index.css` (`--bgColor`,
    `--mainColor`, `--accent`, `--gradient`, the `--text-*` scale) drive the whole
    site, including the light theme in `[data-theme='light']`.
-4. **Contact form** — it validates and simulates a send. Replace the marked
-   `setTimeout` in `src/pages/Contact.jsx` with Formspree / EmailJS / your API.
-
-## Admin dashboard
-
-The dashboard is owner-only and configured entirely through environment variables —
-no credentials in source.
-
-| Variable                  | Purpose                                              |
-| ------------------------- | ---------------------------------------------------- |
-| `VITE_ADMIN_EMAIL`        | The single email allowed to sign in.                 |
-| `VITE_ADMIN_PASSWORD_HASH`| SHA-256 hex digest of the password (not the password).|
-| `VITE_ADMIN_SESSION_HOURS`| Session lifetime in hours (default `8`).             |
-
-Set them in `.env.local` for development (`.env.example` is the template) and in your
-host's dashboard for production. **Vite inlines `VITE_*` values at build time**, so
-redeploy after changing them.
-
-- Generate a hash with `npm run auth:hash -- "your-password"`.
-- Sign in at `/admin`; `RequireOwner` protects every dashboard route and sessions
-  expire automatically (a timer signs you out).
-- Content is stored in `localStorage` (`mash-folio-content-v1`) and seeds from
-  `src/utils/data.js`. Use **Settings → Export JSON** for backups, import to restore,
-  or reset to the seeded demo. Clearing site data also clears edits.
-- Contact submissions land in `/admin/messages` in the same browser. For real
-  delivery, post the form to an API and replace the helpers in `src/utils/messages.js`.
-
-### Security note
-
-Because this is a static site, the auth check runs in the browser: only the SHA-256
-hash is bundled (never the plaintext password), and the session is a local token. That
-is enough to keep the dashboard out of casual reach, but it is **not** server-grade
-authorisation. For sensitive data or a public production deployment, put the
-dashboard behind a real backend/edge function (e.g. Render web service + signed cookie)
-and have it own the admin API.
+4. **Backend storage** — replace `server/lib/store.js` with your database of choice;
+   the routes and validation stay the same.
 
 ## Deploy
 
-The build is a static SPA, so every route needs to fall back to `index.html`.
+The app is a Node web service: Express serves `/api` and the built SPA.
 
 ### Render (one-click blueprint)
 
-`render.yaml` is included and configured with:
+`render.yaml` creates a **Node web service** with:
 
 - build command `npm ci && npm run build`
-- publish path `./dist`
-- catch-all rewrite `/* → /index.html`
-- immutable caching for hashed assets
+- start command `npm start`
+- health check at `/api/health`
 - pull-request previews
+- `ADMIN_EMAIL` and `ADMIN_PASSWORD_HASH` marked `sync: false` (entered once in the
+  Render dashboard), `ADMIN_SESSION_HOURS=8`
 
 To deploy: push the repo, then in Render choose **New → Blueprint**, pick the
-repository and apply. Render creates the `mash-folio` static site and redeploys on
-every push to the tracked branch.
+repository and apply. Add the two secret values when prompted.
 
-Prefer a manual setup? Create a **Static Site** with:
+Prefer a manual setup? Create a **Web Service** with:
 
-| Setting          | Value                  |
-| ---------------- | ---------------------- |
-| Build command    | `npm ci && npm run build` |
-| Publish directory| `dist`                 |
-| Env var          | `NODE_VERSION=22.22.3` |
-| Env vars         | `VITE_ADMIN_EMAIL`, `VITE_ADMIN_PASSWORD_HASH`, `VITE_ADMIN_SESSION_HOURS` |
+| Setting        | Value                    |
+| -------------- | ------------------------ |
+| Runtime        | Node                     |
+| Build command  | `npm ci && npm run build` |
+| Start command  | `npm start`              |
+| Health check   | `/api/health`            |
+| Env vars       | `ADMIN_EMAIL`, `ADMIN_PASSWORD_HASH`, `ADMIN_SESSION_HOURS` |
 
-…then add the rewrite rule `/*` → `/index.html` under **Redirects/Rewrites**.
+Data on the free tier is ephemeral; add a persistent disk mounted at `/var/data` and
+set `DATA_DIR=/var/data` to keep edits and messages across deploys.
 
 ### Other hosts
 
-- **Netlify** — `public/_redirects` is already included.
-- **Vercel** — `vercel.json` rewrite is already included.
-- **GitHub Pages / others** — add an equivalent rewrite, or switch
-  `BrowserRouter` to `HashRouter` in `src/main.jsx`.
+Netlify and Vercel can still host the **frontend** (`public/_redirects` and
+`vercel.json` are included), but the dashboard and contact inbox need the Node API.
+Deploy `server/` separately (Render, Railway, Fly.io, a VPS) and point the frontend at
+it with `VITE_API_URL`. Because session cookies are `SameSite=Lax`, the API must be
+same-site with the frontend (or proxied through the same domain) for sign-in to work.
+The simplest setup is the single Render service above, which serves both.
 
 ## Notes
 
-- The contact form stores submissions in this browser so the dashboard inbox works
-  without a backend; connect an endpoint (or use the helpers in
-  `src/utils/messages.js`) for real delivery.
-- Dashboard edits live in the owner's browser until you add a backend. Export a JSON
-  backup before clearing site data or moving to another device.
 - Project copy, metrics, testimonials and article links are illustrative template
   content — replace them with your real work before publishing.
 - The nav and case-study panels are drawers (right-side sheets), not dropdown menus:
   they animate in, lock scroll, trap focus and close on Esc.
+- `npm test` runs the API suite against an ephemeral server and temp data directory;
+  it never touches `server/data`.

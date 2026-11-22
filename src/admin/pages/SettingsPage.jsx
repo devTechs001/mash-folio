@@ -97,7 +97,7 @@ export default function SettingsPage() {
             </div>
             <div>
               <dt>Password storage</dt>
-              <dd>SHA-256 hash only — never plaintext</dd>
+              <dd>Server-side SHA-256 hash — never sent to the browser</dd>
             </div>
           </dl>
 
@@ -113,23 +113,22 @@ export default function SettingsPage() {
               Generate a new hash: <code>npm run auth:hash -- &quot;new-password&quot;</code>
             </li>
             <li>
-              Update <code>VITE_ADMIN_PASSWORD_HASH</code> in <code>.env.local</code> (and in
-              Render for production).
+              Update <code>ADMIN_PASSWORD_HASH</code> in <code>.env.local</code> (and in Render for
+              production).
             </li>
-            <li>Restart the dev server or redeploy — env vars are read at boot.</li>
+            <li>Restart the Node server or redeploy — env vars are read at boot.</li>
           </ol>
           <p className="adm-note">
-            <FiKey aria-hidden="true" /> Vite exposes <code>VITE_*</code> values in the client
-            bundle, so this is an owner gate, not a hardened server auth. The hash makes the
-            password unreadable, but determined visitors could still forge a session locally. Pair
-            it with a backend or edge function for sensitive data.
+            <FiKey aria-hidden="true" /> Authentication is verified by the Express API and the
+            browser only receives an <code>HttpOnly</code>, <code>SameSite=Lax</code> session
+            cookie. Sessions live in server memory, so a restart signs everyone out.
           </p>
         </Panel>
       </div>
 
       <Panel
         title="Content backup"
-        description="Your content is saved in this browser. Export a JSON snapshot before clearing site data or switching devices."
+        description="Content is saved to the API (server/data) and cached here. Export a snapshot before migrating hosts."
         actions={
           <button type="button" className="adm-btn adm-btn-ghost adm-btn-sm" onClick={download}>
             <FiDownload aria-hidden="true" />
@@ -198,19 +197,28 @@ export default function SettingsPage() {
         </div>
       </Panel>
 
-      <Panel title="Deployment" description="Set the same variables wherever the site is hosted.">
+      <Panel
+        title="Deployment"
+        description="The Express server hosts the API and the built site. Set these where it runs."
+      >
         <div className="adm-env">
-          <code>VITE_ADMIN_EMAIL</code>
+          <code>ADMIN_EMAIL</code>
           <span>Owner sign-in email.</span>
-          <code>VITE_ADMIN_PASSWORD_HASH</code>
+          <code>ADMIN_PASSWORD_HASH</code>
           <span>SHA-256 hex digest of the password.</span>
-          <code>VITE_ADMIN_SESSION_HOURS</code>
+          <code>ADMIN_SESSION_HOURS</code>
           <span>Session lifetime in hours (default 8).</span>
+          <code>DATA_DIR</code>
+          <span>Where content.json and messages.json live (default server/data).</span>
+          <code>PORT</code>
+          <span>HTTP port for the API + site (Render sets this for you).</span>
         </div>
         <p className="adm-note">
-          <FiShield aria-hidden="true" /> Render: Site → Environment → add the three variables →
-          redeploy. The Blueprint in <code>render.yaml</code> lists them with <code>sync: false</code>{' '}
-          so you enter the values once in the dashboard.
+          <FiShield aria-hidden="true" /> Render: deploy the repo as a <strong>Web Service</strong>{' '}
+          (Node) with build <code>npm ci &amp;&amp; npm run build</code> and start{' '}
+          <code>npm start</code>. The Blueprint in <code>render.yaml</code> does this and lists the
+          secrets with <code>sync: false</code>. Attach a persistent disk at <code>DATA_DIR</code>{' '}
+          if you need data to survive deploys.
         </p>
       </Panel>
     </div>

@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * Print the SHA-256 hash of a password for VITE_ADMIN_PASSWORD_HASH.
+ * Print the SHA-256 hash of a password for ADMIN_PASSWORD_HASH (server env).
  *
  *   npm run auth:hash -- "my super secret password"
  */
