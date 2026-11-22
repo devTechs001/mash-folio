@@ -1,8 +1,8 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { FiArrowRight, FiSend } from 'react-icons/fi';
 import { SiReact, SiNodedotjs, SiTypescript } from 'react-icons/si';
-import { heroCode, profile } from '../utils/data';
+import { useContent } from '../context/ContentContext';
 import SocialLinks from './SocialLinks';
 
 function useTypewriter(words, { type = 80, erase = 38, hold = 1900 } = {}) {
@@ -46,7 +46,12 @@ function useTypewriter(words, { type = 80, erase = 38, hold = 1900 } = {}) {
 }
 
 export default function Hero() {
-  const typed = useTypewriter(profile.roles);
+  const { profile, heroCode } = useContent();
+  const roles = useMemo(
+    () => (profile.roles?.length ? profile.roles : [profile.role || 'Developer']),
+    [profile.roles, profile.role]
+  );
+  const typed = useTypewriter(roles);
 
   return (
     <section className="home" id="home">

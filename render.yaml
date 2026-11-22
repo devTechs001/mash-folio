@@ -10,6 +10,14 @@ services:
     envVars:
       - key: NODE_VERSION
         value: 22.22.3
+      # Owner dashboard credentials. `sync: false` asks for the value once in the
+      # Render dashboard instead of storing it in git.
+      - key: VITE_ADMIN_EMAIL
+        sync: false
+      - key: VITE_ADMIN_PASSWORD_HASH
+        sync: false
+      - key: VITE_ADMIN_SESSION_HOURS
+        value: "8"
     routes:
       - type: rewrite
         source: /*

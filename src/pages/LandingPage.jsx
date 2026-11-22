@@ -7,12 +7,13 @@ import Skills from './Skills';
 import Process from '../components/Process';
 import Testimonials from '../components/Testimonials';
 import Writing from '../components/Writing';
-import { about, profile, stats } from '../utils/data';
+import { useContent } from '../context/ContentContext';
 import { useScrollReveal } from '../utils/useScrollReveal';
 import aboutVisual from '../assets/about-visual.jpg';
 import '../styles/LandingPage.css';
 
 export default function LandingPage() {
+  const { about, profile, stats } = useContent();
   const revealRef = useScrollReveal();
 
   return (

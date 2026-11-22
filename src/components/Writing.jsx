@@ -1,8 +1,10 @@
 import { FiArrowUpRight } from 'react-icons/fi';
-import { articles } from '../utils/data';
+import { useContent } from '../context/ContentContext';
 import { useScrollReveal } from '../utils/useScrollReveal';
 
 export default function Writing() {
+  const { content } = useContent();
+  const articles = content.articles || [];
   const revealRef = useScrollReveal();
 
   return (

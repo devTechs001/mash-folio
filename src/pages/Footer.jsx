@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom';
 import { FiMail, FiMapPin, FiClock, FiArrowUp } from 'react-icons/fi';
 import SocialLinks from '../components/SocialLinks';
-import { profile } from '../utils/data';
+import { useContent } from '../context/ContentContext';
 
 const exploreLinks = [
   { to: '/', label: 'Home' },
@@ -10,13 +10,13 @@ const exploreLinks = [
   { to: '/contact', label: 'Contact' },
 ];
 
-const elsewhere = profile.socials.map((social) => ({
-  label: social.label,
-  href: social.href,
-}));
-
 export default function Footer() {
+  const { profile } = useContent();
   const year = new Date().getFullYear();
+  const elsewhere = profile.socials.map((social) => ({
+    label: social.label,
+    href: social.href,
+  }));
 
   return (
     <footer className="footer">

@@ -3,11 +3,13 @@ import { Link } from 'react-router-dom';
 import { FiArrowRight } from 'react-icons/fi';
 import ProjectCard from '../pages/ProjectCard';
 import ProjectDrawer from './ProjectDrawer';
-import { projects } from '../utils/data';
+import { useContent } from '../context/ContentContext';
 import { useScrollReveal } from '../utils/useScrollReveal';
 import '../styles/Projects.css';
 
 export default function SelectedWork() {
+  const { content } = useContent();
+  const projects = content.projects || [];
   const revealRef = useScrollReveal();
   const [activeProject, setActiveProject] = useState(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
@@ -16,7 +18,7 @@ export default function SelectedWork() {
     const featured = projects.filter((project) => project.featured);
     const rest = projects.filter((project) => !project.featured);
     return [...featured, ...rest].slice(0, 3);
-  }, []);
+  }, [projects]);
 
   const openProject = (project) => {
     setActiveProject(project);

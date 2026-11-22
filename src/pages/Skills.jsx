@@ -1,5 +1,5 @@
 import { FiLayout, FiServer } from 'react-icons/fi';
-import { skills, techStack } from '../utils/data';
+import { useContent } from '../context/ContentContext';
 import { getTechIcon } from '../utils/techIcons';
 import { useScrollReveal } from '../utils/useScrollReveal';
 
@@ -51,6 +51,7 @@ function SkillColumn({ title, subtitle, icon: Icon, items }) {
 }
 
 export default function Skills() {
+  const { skills, techStack } = useContent();
   const revealRef = useScrollReveal();
   const marqueeItems = [...techStack, ...techStack];
 
