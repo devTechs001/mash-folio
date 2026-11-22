@@ -8,9 +8,11 @@ import LandingPage from './pages/LandingPage';
 import About from './pages/About';
 import Projects from './pages/Projects';
 import Contact from './pages/Contact';
+import { AuthProvider } from './context/AuthContext';
+import { ContentProvider } from './context/ContentContext';
+import { ThemeProvider } from './context/ThemeContext';
+import AdminRoutes from './admin/AdminRoutes';
 import './App.css';
-
-const STORAGE_KEY = 'mash-folio-theme';
 
 const pageTitles = {
   '/': 'Mash — Full-Stack Developer',
@@ -18,19 +20,6 @@ const pageTitles = {
   '/projects': 'Projects — Mash',
   '/contact': 'Contact — Mash',
 };
-
-function getInitialTheme() {
-  if (typeof window === 'undefined') return 'dark';
-
-  try {
-    const stored = window.localStorage.getItem(STORAGE_KEY);
-    if (stored === 'light' || stored === 'dark') return stored;
-  } catch (error) {
-    /* storage can be blocked — fall back to the default theme */
-  }
-
-  return 'dark';
-}
 
 function ScrollProgress() {
   const barRef = useRef(null);
@@ -137,28 +126,22 @@ function NotFound() {
   );
 }
 
-export default function App() {
-  const [theme, setTheme] = useState(getInitialTheme);
+function Shell() {
   const location = useLocation();
+  const isAdmin = location.pathname === '/admin' || location.pathname.startsWith('/admin/');
 
   useEffect(() => {
-    document.documentElement.setAttribute('data-theme', theme);
-
-    try {
-      window.localStorage.setItem(STORAGE_KEY, theme);
-    } catch (error) {
-      /* ignore storage failures, the theme still applies for this session */
+    if (isAdmin) {
+      document.title = 'Admin — Mash Folio';
+      return;
     }
 
-    document
-      .querySelector('meta[name="theme-color"]')
-      ?.setAttribute('content', theme === 'dark' ? '#1f242d' : '#eef3f8');
-  }, [theme]);
+    document.title = pageTitles[location.pathname] ?? 'Page not found — Mash';
+  }, [location.pathname, isAdmin]);
 
-  useEffect(() => {
-    const title = pageTitles[location.pathname];
-    document.title = title ?? 'Page not found — Mash';
-  }, [location.pathname]);
+  if (isAdmin) {
+    return <AdminRoutes />;
+  }
 
   return (
     <div className="app-shell" id="top">
@@ -168,12 +151,7 @@ export default function App() {
 
       <ScrollProgress />
       <ScrollManager />
-
-      <Navbar
-        theme={theme}
-        onToggleTheme={() => setTheme((current) => (current === 'dark' ? 'light' : 'dark'))}
-      />
-
+      <Navbar />
       <SocialRail />
 
       <main
@@ -194,5 +172,17 @@ export default function App() {
       <Footer />
       <BackToTop />
     </div>
+  );
+}
+
+export default function App() {
+  return (
+    <ThemeProvider>
+      <AuthProvider>
+        <ContentProvider>
+          <Shell />
+        </ContentProvider>
+      </AuthProvider>
+    </ThemeProvider>
   );
 }

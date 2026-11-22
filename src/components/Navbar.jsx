@@ -10,7 +10,8 @@ import {
 } from 'react-icons/fi';
 import Drawer from './Drawer';
 import { getSocialIcon } from './SocialLinks';
-import { profile } from '../utils/data';
+import { useContent } from '../context/ContentContext';
+import { useTheme } from '../context/ThemeContext';
 
 const links = [
   { to: '/', label: 'Home', end: true },
@@ -19,7 +20,9 @@ const links = [
   { to: '/contact', label: 'Contact' },
 ];
 
-export default function Navbar({ theme, onToggleTheme }) {
+export default function Navbar() {
+  const { theme, toggle } = useTheme();
+  const { profile } = useContent();
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const location = useLocation();
@@ -76,7 +79,7 @@ export default function Navbar({ theme, onToggleTheme }) {
         <button
           type="button"
           className="theme-toggle"
-          onClick={onToggleTheme}
+          onClick={toggle}
           aria-label={`Switch to ${isDark ? 'light' : 'dark'} theme`}
           title={`Switch to ${isDark ? 'light' : 'dark'} theme`}
         >

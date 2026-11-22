@@ -1,5 +1,5 @@
 import { FiCode, FiLayout, FiServer, FiZap } from 'react-icons/fi';
-import { services } from '../utils/data';
+import { useContent } from '../context/ContentContext';
 import { useScrollReveal } from '../utils/useScrollReveal';
 
 const icons = {
@@ -10,6 +10,8 @@ const icons = {
 };
 
 export default function Services({ id = 'services', className = '' }) {
+  const { content } = useContent();
+  const services = content.services || [];
   const revealRef = useScrollReveal();
 
   return (

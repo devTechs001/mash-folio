@@ -1,5 +1,5 @@
 import { FiSearch, FiPenTool, FiCode, FiTrendingUp } from 'react-icons/fi';
-import { processSteps } from '../utils/data';
+import { useContent } from '../context/ContentContext';
 import { useScrollReveal } from '../utils/useScrollReveal';
 
 const icons = {
@@ -10,6 +10,8 @@ const icons = {
 };
 
 export default function Process() {
+  const { content } = useContent();
+  const processSteps = content.processSteps || [];
   const revealRef = useScrollReveal();
 
   return (

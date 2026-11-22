@@ -1,31 +1,40 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { FiArrowRight, FiFolder } from 'react-icons/fi';
 import ProjectCard from './ProjectCard';
 import ProjectDrawer from '../components/ProjectDrawer';
-import { projectFilters, projects } from '../utils/data';
+import { useContent } from '../context/ContentContext';
 import { useScrollReveal } from '../utils/useScrollReveal';
 import '../styles/Projects.css';
 
 export default function Projects() {
+  const { content } = useContent();
+  const projects = content.projects || [];
   const [filter, setFilter] = useState('All');
   const [activeProject, setActiveProject] = useState(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const revealRef = useScrollReveal();
 
-  const counts = useMemo(() => {
-    return projectFilters.reduce((acc, category) => {
+  const { categories, counts } = useMemo(() => {
+    const list = ['All', ...new Set(projects.map((project) => project.category).filter(Boolean))];
+    const map = list.reduce((acc, category) => {
       acc[category] =
         category === 'All'
           ? projects.length
           : projects.filter((project) => project.category === category).length;
       return acc;
     }, {});
-  }, []);
+    return { categories: list, counts: map };
+  }, [projects]);
+
+  // If the active category disappears (renamed/deleted in the dashboard), fall back.
+  useEffect(() => {
+    if (!categories.includes(filter)) setFilter('All');
+  }, [categories, filter]);
 
   const filtered = useMemo(
     () => (filter === 'All' ? projects : projects.filter((project) => project.category === filter)),
-    [filter]
+    [filter, projects]
   );
 
   const openProject = (project) => {
@@ -49,7 +58,7 @@ export default function Projects() {
 
         <div className="projects-toolbar reveal">
           <div className="filters" role="group" aria-label="Filter projects by category">
-            {projectFilters.map((category) => (
+            {categories.map((category) => (
               <button
                 type="button"
                 key={category}

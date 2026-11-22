@@ -1,4 +1,4 @@
-import { profile } from '../utils/data';
+import { useContent } from '../context/ContentContext';
 import { getSocialIcon } from './SocialLinks';
 
 /**
@@ -6,6 +6,8 @@ import { getSocialIcon } from './SocialLinks';
  * portfolio touch that keeps your profiles one click away on every page.
  */
 export default function SocialRail() {
+  const { profile } = useContent();
+
   return (
     <aside className="social-rail" aria-label="Social profiles">
       <span className="social-rail-line" aria-hidden="true" />

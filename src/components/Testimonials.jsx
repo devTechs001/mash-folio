@@ -1,8 +1,10 @@
 import { FiStar } from 'react-icons/fi';
-import { testimonials } from '../utils/data';
+import { useContent } from '../context/ContentContext';
 import { useScrollReveal } from '../utils/useScrollReveal';
 
 export default function Testimonials() {
+  const { content } = useContent();
+  const testimonials = content.testimonials || [];
   const revealRef = useScrollReveal();
 
   return (

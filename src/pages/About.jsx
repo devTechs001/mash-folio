@@ -6,13 +6,14 @@ import {
   FiCoffee,
 } from 'react-icons/fi';
 import Services from '../components/Services';
-import { about, experience, profile, stats, techStack } from '../utils/data';
+import { useContent } from '../context/ContentContext';
 import { useScrollReveal } from '../utils/useScrollReveal';
 import { getTechIcon } from '../utils/techIcons';
 import aboutVisual from '../assets/about-visual.jpg';
 import '../styles/LandingPage.css';
 
 export default function About() {
+  const { about, experience, profile, stats, techStack } = useContent();
   const revealRef = useScrollReveal();
 
   return (

@@ -9,8 +9,9 @@ import {
   FiSend,
 } from 'react-icons/fi';
 import SocialLinks, { getSocialIcon } from '../components/SocialLinks';
-import { profile } from '../utils/data';
+import { useContent } from '../context/ContentContext';
 import { useScrollReveal } from '../utils/useScrollReveal';
+import { addMessage } from '../utils/messages';
 import '../styles/Contact.css';
 
 const EMPTY_FORM = { name: '', email: '', subject: '', message: '' };
@@ -50,6 +51,7 @@ function Field({ name, label, error, hint, children }) {
 }
 
 export default function Contact() {
+  const { profile } = useContent();
   const [form, setForm] = useState(EMPTY_FORM);
   const [errors, setErrors] = useState({});
   const [status, setStatus] = useState('idle'); // idle | sending | sent
@@ -86,6 +88,9 @@ export default function Contact() {
     await new Promise((resolve) => {
       setTimeout(resolve, 1200);
     });
+
+    // Store locally so the owner can read it in /admin/messages.
+    addMessage(form);
 
     setStatus('sent');
   };

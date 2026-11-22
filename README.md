@@ -4,7 +4,8 @@ A modern, single-page-style portfolio for **Mash**, a full-stack developer in Na
 built with **React + Vite + Tailwind CSS** on top of the dark/cyan design template
 (Poppins, `#1f242d` ink, `#0ef` neon accent, 10px rem scale).
 
-Routes: `/`, `/about`, `/projects`, `/contact` (plus a styled 404).
+Routes: `/`, `/about`, `/projects`, `/contact` (plus a styled 404) and an
+owner-only dashboard at `/admin`.
 
 ## What's inside
 
@@ -24,6 +25,18 @@ Routes: `/`, `/about`, `/projects`, `/contact` (plus a styled 404).
 **Projects page** — filterable grid, featured card, case-study drawer with deep detail.
 **Contact page** — validated form (sending/success states), contact cards and a
 **socials grid** for every profile.
+
+**Owner dashboard** (`/admin`)
+
+- Email + password sign-in against environment variables, with an expiring session
+  (`localStorage` when “keep me signed in”, `sessionStorage` otherwise).
+- A drawer-based control panel (no dropdowns) with one section per front-page system:
+  profile & hero, about/stats/experience, skills & tech stack, socials, projects,
+  services, process, testimonials, writing, inbox and settings.
+- Edits autosave to `localStorage` and render on the public site immediately, in this
+  tab and across tabs. Export/import JSON backups and reset to the seeded content.
+- The contact form feeds the dashboard inbox; messages can be read, replied to,
+  marked read/unread and deleted.
 
 **Site chrome**
 
@@ -59,6 +72,10 @@ npm install
 npm run dev      # http://localhost:5173
 npm run build    # production build to dist/
 npm run preview  # serve the build locally
+
+# owner dashboard credentials (copy the template first)
+cp .env.example .env.local
+npm run auth:hash -- "your-password"   # paste into VITE_ADMIN_PASSWORD_HASH
 ```
 
 ## Project structure
@@ -99,16 +116,32 @@ src/
     LandingPage.css        # hero, about, services, skills, process, testimonials…
     Projects.css           # filters, cards, case-study drawer
     Contact.css            # contact cards, form, socials grid
+  context/
+    ThemeContext.jsx       # theme + localStorage persistence
+    AuthContext.jsx        # owner session, SHA-256 login, expiry
+    ContentContext.jsx     # editable content store (seeded from data.js)
+  admin/
+    AdminRoutes.jsx        # /admin/login + protected dashboard routes
+    AdminLayout.jsx        # top bar, drawer navigation, autosave status
+    RequireOwner.jsx       # redirects signed-out visitors to the login screen
+    useMessages.js         # live inbox hook
+    components/AdminUI.jsx # form controls, list + collection editors
+    pages/                 # overview, profile, about, skills, socials, projects,
+                           #   services, process, testimonials, writing, messages,
+                           #   settings, login
   utils/
-    data.js                # ALL content (profile, about, stats, services, skills,
-                           #   projects, experience, process, testimonials, articles)
+    data.js                # DEFAULT content (seed for the dashboard)
+    messages.js            # contact-form → localStorage inbox helpers
     techIcons.js           # tech name → icon map (with fallback)
     useScrollReveal.js     # reveal-on-scroll hook
+  styles/admin.css         # dashboard layout, forms, login, responsive drawers
+  scripts/hash-password.mjs  # npm run auth:hash → SHA-256 hex
 ```
 
 ## Make it yours
 
-1. **Content** — edit `src/utils/data.js`. Everything is data-driven: profile and
+1. **Content** — sign in at `/admin` and edit the site without touching code, or
+   change the defaults in `src/utils/data.js`. Everything is data-driven: profile and
    socials (with handles), bio, stats, services, skills and levels, tech stack,
    experience, projects, process steps, testimonials and articles. Replace the
    placeholder email (`hello@mashfolio.dev`) and social URLs; empty
@@ -120,6 +153,39 @@ src/
    site, including the light theme in `[data-theme='light']`.
 4. **Contact form** — it validates and simulates a send. Replace the marked
    `setTimeout` in `src/pages/Contact.jsx` with Formspree / EmailJS / your API.
+
+## Admin dashboard
+
+The dashboard is owner-only and configured entirely through environment variables —
+no credentials in source.
+
+| Variable                  | Purpose                                              |
+| ------------------------- | ---------------------------------------------------- |
+| `VITE_ADMIN_EMAIL`        | The single email allowed to sign in.                 |
+| `VITE_ADMIN_PASSWORD_HASH`| SHA-256 hex digest of the password (not the password).|
+| `VITE_ADMIN_SESSION_HOURS`| Session lifetime in hours (default `8`).             |
+
+Set them in `.env.local` for development (`.env.example` is the template) and in your
+host's dashboard for production. **Vite inlines `VITE_*` values at build time**, so
+redeploy after changing them.
+
+- Generate a hash with `npm run auth:hash -- "your-password"`.
+- Sign in at `/admin`; `RequireOwner` protects every dashboard route and sessions
+  expire automatically (a timer signs you out).
+- Content is stored in `localStorage` (`mash-folio-content-v1`) and seeds from
+  `src/utils/data.js`. Use **Settings → Export JSON** for backups, import to restore,
+  or reset to the seeded demo. Clearing site data also clears edits.
+- Contact submissions land in `/admin/messages` in the same browser. For real
+  delivery, post the form to an API and replace the helpers in `src/utils/messages.js`.
+
+### Security note
+
+Because this is a static site, the auth check runs in the browser: only the SHA-256
+hash is bundled (never the plaintext password), and the session is a local token. That
+is enough to keep the dashboard out of casual reach, but it is **not** server-grade
+authorisation. For sensitive data or a public production deployment, put the
+dashboard behind a real backend/edge function (e.g. Render web service + signed cookie)
+and have it own the admin API.
 
 ## Deploy
 
@@ -146,6 +212,7 @@ Prefer a manual setup? Create a **Static Site** with:
 | Build command    | `npm ci && npm run build` |
 | Publish directory| `dist`                 |
 | Env var          | `NODE_VERSION=22.22.3` |
+| Env vars         | `VITE_ADMIN_EMAIL`, `VITE_ADMIN_PASSWORD_HASH`, `VITE_ADMIN_SESSION_HOURS` |
 
 …then add the rewrite rule `/*` → `/index.html` under **Redirects/Rewrites**.
 
@@ -158,8 +225,11 @@ Prefer a manual setup? Create a **Static Site** with:
 
 ## Notes
 
-- The contact form is front-end only until you connect an endpoint; messages are not
-  stored anywhere.
+- The contact form stores submissions in this browser so the dashboard inbox works
+  without a backend; connect an endpoint (or use the helpers in
+  `src/utils/messages.js`) for real delivery.
+- Dashboard edits live in the owner's browser until you add a backend. Export a JSON
+  backup before clearing site data or moving to another device.
 - Project copy, metrics, testimonials and article links are illustrative template
   content — replace them with your real work before publishing.
 - The nav and case-study panels are drawers (right-side sheets), not dropdown menus:
