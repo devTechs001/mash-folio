@@ -1,0 +1,78 @@
+/**
+ * Tech name -> icon component.
+ * Falls back to a generic code icon for names we don't have a logo for,
+ * so adding a new technology to `data.js` never breaks the UI.
+ */
+import {
+  SiReact,
+  SiNextdotjs,
+  SiTypescript,
+  SiJavascript,
+  SiTailwindcss,
+  SiHtml5,
+  SiCss,
+  SiFramer,
+  SiNodedotjs,
+  SiExpress,
+  SiPostgresql,
+  SiMongodb,
+  SiRedis,
+  SiDocker,
+  SiGraphql,
+  SiFirebase,
+  SiSupabase,
+  SiVite,
+  SiGit,
+  SiFigma,
+  SiStorybook,
+  SiVitest,
+  SiJest,
+  SiGithub,
+  SiVercel,
+  SiLinux,
+} from 'react-icons/si';
+import { FiCode } from 'react-icons/fi';
+
+const icons = {
+  react: SiReact,
+  'react / next.js': SiReact,
+  'next.js': SiNextdotjs,
+  nextjs: SiNextdotjs,
+  typescript: SiTypescript,
+  javascript: SiJavascript,
+  'javascript / typescript': SiTypescript,
+  'tailwind css': SiTailwindcss,
+  tailwindcss: SiTailwindcss,
+  'html5 & css3': SiHtml5,
+  html5: SiHtml5,
+  css3: SiCss,
+  css: SiCss,
+  'framer motion': SiFramer,
+  'node.js': SiNodedotjs,
+  nodejs: SiNodedotjs,
+  'node.js / express': SiNodedotjs,
+  express: SiExpress,
+  postgresql: SiPostgresql,
+  'postgresql / mongodb': SiPostgresql,
+  mongodb: SiMongodb,
+  redis: SiRedis,
+  docker: SiDocker,
+  graphql: SiGraphql,
+  firebase: SiFirebase,
+  supabase: SiSupabase,
+  vite: SiVite,
+  git: SiGit,
+  figma: SiFigma,
+  storybook: SiStorybook,
+  vitest: SiVitest,
+  'testing (jest, vitest)': SiVitest,
+  jest: SiJest,
+  github: SiGithub,
+  vercel: SiVercel,
+  linux: SiLinux,
+  cssvariables: SiCss,
+};
+
+export function getTechIcon(name) {
+  return icons[String(name).toLowerCase()] ?? FiCode;
+}
