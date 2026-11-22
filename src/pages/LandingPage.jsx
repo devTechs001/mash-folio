@@ -1,7 +1,12 @@
 import { Link } from 'react-router-dom';
 import { FiArrowRight, FiCheckCircle, FiMail, FiZap } from 'react-icons/fi';
 import Hero from '../components/Hero';
+import Services from '../components/Services';
+import SelectedWork from '../components/SelectedWork';
 import Skills from './Skills';
+import Process from '../components/Process';
+import Testimonials from '../components/Testimonials';
+import Writing from '../components/Writing';
 import { about, profile, stats } from '../utils/data';
 import { useScrollReveal } from '../utils/useScrollReveal';
 import aboutVisual from '../assets/about-visual.jpg';
@@ -89,7 +94,17 @@ export default function LandingPage() {
           </div>
         </section>
 
+        <Services />
+
+        <SelectedWork />
+
         <Skills />
+
+        <Process />
+
+        <Testimonials />
+
+        <Writing />
 
         {/* Contact call to action */}
         <section className="section cta-section">

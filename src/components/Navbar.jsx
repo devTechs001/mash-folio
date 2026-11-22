@@ -1,6 +1,16 @@
 import { useEffect, useState } from 'react';
 import { Link, NavLink, useLocation } from 'react-router-dom';
-import { FiMenu, FiX, FiSun, FiMoon } from 'react-icons/fi';
+import {
+  FiMenu,
+  FiSun,
+  FiMoon,
+  FiArrowRight,
+  FiArrowUpRight,
+  FiMail,
+} from 'react-icons/fi';
+import Drawer from './Drawer';
+import { getSocialIcon } from './SocialLinks';
+import { profile } from '../utils/data';
 
 const links = [
   { to: '/', label: 'Home', end: true },
@@ -13,8 +23,11 @@ export default function Navbar({ theme, onToggleTheme }) {
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const location = useLocation();
+  const isDark = theme === 'dark';
 
-  // Close the mobile menu whenever the route changes.
+  const closeDrawer = () => setOpen(false);
+
+  // Close the navigation drawer whenever the route changes.
   useEffect(() => {
     setOpen(false);
   }, [location.pathname]);
@@ -27,29 +40,13 @@ export default function Navbar({ theme, onToggleTheme }) {
   }, []);
 
   useEffect(() => {
-    document.body.classList.toggle('menu-open', open);
-    return () => document.body.classList.remove('menu-open');
-  }, [open]);
-
-  useEffect(() => {
-    const onKeyDown = (event) => {
-      if (event.key === 'Escape') setOpen(false);
-    };
-
     const onResize = () => {
       if (window.innerWidth > 900) setOpen(false);
     };
 
-    window.addEventListener('keydown', onKeyDown);
     window.addEventListener('resize', onResize);
-
-    return () => {
-      window.removeEventListener('keydown', onKeyDown);
-      window.removeEventListener('resize', onResize);
-    };
+    return () => window.removeEventListener('resize', onResize);
   }, []);
-
-  const isDark = theme === 'dark';
 
   return (
     <header className={`header${scrolled ? ' scrolled' : ''}`}>
@@ -62,25 +59,17 @@ export default function Navbar({ theme, onToggleTheme }) {
         </span>
       </Link>
 
-      <nav
-        id="primary-navigation"
-        className={`navbar${open ? ' active' : ''}`}
-        aria-label="Primary"
-      >
+      <nav className="navbar" aria-label="Primary">
         {links.map((link) => (
           <NavLink
             key={link.to}
             to={link.to}
             end={link.end}
             className={({ isActive }) => `nav-link${isActive ? ' active' : ''}`}
-            onClick={() => setOpen(false)}
           >
             {link.label}
           </NavLink>
         ))}
-        <Link to="/contact" className="btn btn-sm mobile-cta" onClick={() => setOpen(false)}>
-          Let&apos;s talk
-        </Link>
       </nav>
 
       <div className="header-actions">
@@ -101,14 +90,92 @@ export default function Navbar({ theme, onToggleTheme }) {
         <button
           type="button"
           className="menu-icon"
-          onClick={() => setOpen((value) => !value)}
+          onClick={() => setOpen(true)}
           aria-expanded={open}
-          aria-controls="primary-navigation"
-          aria-label={open ? 'Close menu' : 'Open menu'}
+          aria-controls="site-drawer"
+          aria-label="Open navigation drawer"
         >
-          {open ? <FiX aria-hidden="true" /> : <FiMenu aria-hidden="true" />}
+          <FiMenu aria-hidden="true" />
         </button>
       </div>
+
+      <Drawer
+        open={open}
+        onClose={closeDrawer}
+        label="Site navigation"
+        panelId="site-drawer"
+        className="nav-drawer-root"
+      >
+        <div className="nav-drawer">
+          <div className="nav-drawer-head">
+            <Link to="/" className="logo" onClick={closeDrawer}>
+              <span className="logo-mark" aria-hidden="true">
+                M
+              </span>
+              <span className="logo-text">
+                mash<span>.</span>
+              </span>
+            </Link>
+          </div>
+
+          <p className="drawer-label">Navigate</p>
+          <nav className="nav-drawer-links" aria-label="Site sections">
+            {links.map((link, index) => (
+              <NavLink
+                key={link.to}
+                to={link.to}
+                end={link.end}
+                onClick={closeDrawer}
+                className={({ isActive }) => `nav-drawer-link${isActive ? ' active' : ''}`}
+              >
+                <span className="nav-drawer-num">{String(index + 1).padStart(2, '0')}</span>
+                <span className="nav-drawer-text">{link.label}</span>
+                <FiArrowUpRight aria-hidden="true" />
+              </NavLink>
+            ))}
+          </nav>
+
+          <p className="drawer-label">Socials</p>
+          <div className="nav-drawer-socials">
+            {profile.socials.map((social) => {
+              const Icon = getSocialIcon(social.icon);
+              const isExternal = social.href.startsWith('http');
+
+              return (
+                <a
+                  key={social.label}
+                  href={social.href}
+                  className="nav-drawer-social"
+                  {...(isExternal
+                    ? { target: '_blank', rel: 'noreferrer noopener' }
+                    : {})}
+                >
+                  <Icon aria-hidden="true" />
+                  <span>{social.label}</span>
+                  <span className="nav-drawer-handle">{social.handle}</span>
+                </a>
+              );
+            })}
+          </div>
+
+          <div className="nav-drawer-foot">
+            <span className="nav-drawer-status">
+              <i aria-hidden="true" />
+              {profile.availability}
+            </span>
+
+            <Link to="/contact" className="btn" onClick={closeDrawer}>
+              Start a project
+              <FiArrowRight aria-hidden="true" />
+            </Link>
+
+            <a className="nav-drawer-mail" href={`mailto:${profile.email}`}>
+              <FiMail aria-hidden="true" />
+              {profile.email}
+            </a>
+          </div>
+        </div>
+      </Drawer>
     </header>
   );
 }

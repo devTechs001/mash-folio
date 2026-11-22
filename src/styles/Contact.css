@@ -368,3 +368,111 @@
     font-size: 1.05rem;
   }
 }
+
+/* --------------------------------------------------------------------------
+   Socials section
+   -------------------------------------------------------------------------- */
+
+.contact-socials-section {
+  margin-top: 11rem;
+}
+
+.contact-socials-section .section-head {
+  margin-bottom: 4rem;
+}
+
+.social-cards {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 1.4rem;
+}
+
+.social-card {
+  display: flex;
+  align-items: center;
+  gap: 1.2rem;
+  min-width: 0;
+  padding: 1.7rem 1.6rem;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  background: var(--surface);
+  transition: transform 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease,
+    background 0.3s ease;
+}
+
+.social-card:hover {
+  transform: translateY(-3px);
+  border-color: var(--border-strong);
+  background: rgba(0, 238, 255, 0.05);
+  box-shadow: var(--shadow-glow);
+}
+
+.social-card-icon {
+  display: grid;
+  place-items: center;
+  width: 4rem;
+  height: 4rem;
+  border-radius: 1.1rem;
+  border: 1px solid rgba(0, 238, 255, 0.18);
+  background: rgba(0, 238, 255, 0.1);
+  color: var(--mainColor);
+  font-size: 1.8rem;
+  flex-shrink: 0;
+}
+
+.social-card-text {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  min-width: 0;
+}
+
+.social-card-text strong {
+  font-size: 1.3rem;
+  font-weight: 600;
+  line-height: 1.2;
+  color: var(--textColor);
+}
+
+.social-card-text span {
+  font-size: 1.05rem;
+  color: var(--muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.social-card-arrow {
+  margin-left: auto;
+  flex-shrink: 0;
+  font-size: 1.5rem;
+  color: var(--muted);
+  transition: color 0.25s ease, transform 0.25s ease;
+}
+
+.social-card:hover .social-card-arrow {
+  color: var(--mainColor);
+  transform: translate(2px, -2px);
+}
+
+@media (max-width: 1200px) {
+  .social-cards {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (max-width: 800px) {
+  .social-cards {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 520px) {
+  .contact-socials-section {
+    margin-top: 8rem;
+  }
+
+  .social-cards {
+    grid-template-columns: 1fr;
+  }
+}

@@ -1,13 +1,14 @@
 import { useState } from 'react';
 import {
   FiAlertCircle,
+  FiArrowUpRight,
   FiCheckCircle,
   FiClock,
   FiMail,
   FiMapPin,
   FiSend,
 } from 'react-icons/fi';
-import SocialLinks from '../components/SocialLinks';
+import SocialLinks, { getSocialIcon } from '../components/SocialLinks';
 import { profile } from '../utils/data';
 import { useScrollReveal } from '../utils/useScrollReveal';
 import '../styles/Contact.css';
@@ -246,6 +247,46 @@ export default function Contact() {
             )}
           </div>
         </div>
+
+        <section className="contact-socials-section">
+          <div className="section-head">
+            <span className="eyebrow reveal">Elsewhere</span>
+            <h2 className="title reveal">
+              Find me <span className="accent">online</span>
+            </h2>
+            <p className="section-sub reveal">
+              I share work in progress, experiments and the occasional strong opinion about
+              interfaces.
+            </p>
+          </div>
+
+          <div className="social-cards">
+            {profile.socials.map((social) => {
+              const Icon = getSocialIcon(social.icon);
+              const isExternal = social.href.startsWith('http');
+
+              return (
+                <a
+                  className="social-card reveal"
+                  key={social.label}
+                  href={social.href}
+                  {...(isExternal
+                    ? { target: '_blank', rel: 'noreferrer noopener' }
+                    : {})}
+                >
+                  <span className="social-card-icon">
+                    <Icon aria-hidden="true" />
+                  </span>
+                  <span className="social-card-text">
+                    <strong>{social.label}</strong>
+                    <span>{social.handle}</span>
+                  </span>
+                  <FiArrowUpRight className="social-card-arrow" aria-hidden="true" />
+                </a>
+              );
+            })}
+          </div>
+        </section>
       </div>
     </div>
   );

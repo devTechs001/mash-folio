@@ -210,7 +210,7 @@ button {
 
 .section {
   position: relative;
-  padding-block: 11rem;
+  padding-block: 10rem;
 }
 
 .section-head {
@@ -602,7 +602,7 @@ button {
   }
 
   .section {
-    padding-block: 13rem;
+    padding-block: 12rem;
   }
 }
 
@@ -612,7 +612,7 @@ button {
   }
 
   .section {
-    padding-block: 9rem;
+    padding-block: 8rem;
   }
 }
 

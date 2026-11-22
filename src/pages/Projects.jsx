@@ -1,7 +1,8 @@
 import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { FiArrowRight, FiFolder } from 'react-icons/fi';
-import ProjectCard, { ProjectModal } from './ProjectCard';
+import ProjectCard from './ProjectCard';
+import ProjectDrawer from '../components/ProjectDrawer';
 import { projectFilters, projects } from '../utils/data';
 import { useScrollReveal } from '../utils/useScrollReveal';
 import '../styles/Projects.css';
@@ -9,6 +10,7 @@ import '../styles/Projects.css';
 export default function Projects() {
   const [filter, setFilter] = useState('All');
   const [activeProject, setActiveProject] = useState(null);
+  const [drawerOpen, setDrawerOpen] = useState(false);
   const revealRef = useScrollReveal();
 
   const counts = useMemo(() => {
@@ -25,6 +27,11 @@ export default function Projects() {
     () => (filter === 'All' ? projects : projects.filter((project) => project.category === filter)),
     [filter]
   );
+
+  const openProject = (project) => {
+    setActiveProject(project);
+    setDrawerOpen(true);
+  };
 
   return (
     <div className="page projects-page" ref={revealRef}>
@@ -68,7 +75,7 @@ export default function Projects() {
                 key={project.id}
                 project={project}
                 index={index}
-                onOpen={setActiveProject}
+                onOpen={openProject}
               />
             ))}
           </div>
@@ -92,9 +99,11 @@ export default function Projects() {
         </div>
       </div>
 
-      {activeProject && (
-        <ProjectModal project={activeProject} onClose={() => setActiveProject(null)} />
-      )}
+      <ProjectDrawer
+        project={activeProject}
+        open={drawerOpen}
+        onClose={() => setDrawerOpen(false)}
+      />
     </div>
   );
 }

@@ -496,142 +496,93 @@
 }
 
 /* --------------------------------------------------------------------------
-   Project modal
+   Case study drawer
    -------------------------------------------------------------------------- */
 
-.modal-backdrop {
-  position: fixed;
-  inset: 0;
-  z-index: 2000;
-  display: grid;
-  place-items: center;
-  padding: 2rem;
-  overflow-y: auto;
-  background: rgba(6, 9, 13, 0.74);
-  backdrop-filter: blur(6px);
-  -webkit-backdrop-filter: blur(6px);
-  animation: fadeIn 0.25s ease both;
+.case {
+  display: flex;
+  flex-direction: column;
+  min-height: 100%;
 }
 
-.modal {
+.case-cover {
   position: relative;
-  width: min(88rem, 100%);
-  max-height: 90vh;
-  overflow-y: auto;
-  border-radius: 2.6rem;
-  border: 1px solid var(--border-strong);
-  background: var(--surface-solid);
-  box-shadow: 0 5rem 10rem -3rem rgba(0, 0, 0, 0.95);
-  animation: popIn 0.35s cubic-bezier(0.22, 1, 0.36, 1) both;
-  overscroll-behavior: contain;
-}
-
-.modal-close {
-  position: absolute;
-  top: 1.8rem;
-  right: 1.8rem;
-  z-index: 5;
-  display: grid;
-  place-items: center;
-  width: 4.2rem;
-  height: 4.2rem;
-  border-radius: 50%;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  background: rgba(9, 12, 18, 0.62);
-  color: #fff;
-  font-size: 2rem;
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  transition: background 0.25s ease, color 0.25s ease, border-color 0.25s ease,
-    transform 0.25s ease;
-}
-
-.modal-close:hover {
-  background: var(--mainColor);
-  border-color: var(--mainColor);
-  color: var(--accent-ink);
-  transform: rotate(90deg);
-}
-
-.modal-cover {
-  position: relative;
-  height: 24rem;
-  padding: 2.6rem;
+  height: 26rem;
+  padding: 2.8rem;
+  display: flex;
+  align-items: flex-end;
   overflow: hidden;
   background: linear-gradient(135deg, var(--c1, #00e5ff), var(--c2, #4f8cff));
 }
 
-.modal-cover .cover-grid {
+.case-cover .cover-grid {
   position: absolute;
+  inset: 0;
 }
 
-.modal-cover-label {
+.case-cover-top {
   position: relative;
   z-index: 2;
-  display: inline-block;
-  padding: 0.6rem 1.4rem;
-  border-radius: 99px;
-  border: 1px solid rgba(255, 255, 255, 0.22);
-  background: rgba(8, 12, 18, 0.55);
-  color: #fff;
-  font-size: 1.1rem;
-  font-weight: 600;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-}
-
-.modal-cover-icons {
-  position: absolute;
-  right: 2.6rem;
-  bottom: 2.6rem;
-  z-index: 2;
-  display: flex;
-  gap: 0.8rem;
-}
-
-.modal-body {
-  padding: 3.8rem;
-}
-
-.modal-meta {
   display: flex;
   flex-wrap: wrap;
   gap: 0.7rem;
-  margin-bottom: 1.8rem;
 }
 
-.modal-body h2 {
-  font-size: clamp(2.6rem, 4vw, 3.6rem);
-  line-height: 1.1;
+.case-cover-top .project-badge {
+  background: rgba(8, 12, 18, 0.62);
+}
+
+.case-icons {
+  position: absolute;
+  right: 2.8rem;
+  bottom: 2.8rem;
+  z-index: 2;
+  display: flex;
+  gap: 0.7rem;
+}
+
+.case-body {
+  padding: 3.4rem 3rem 4rem;
+}
+
+.case-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.7rem;
   margin-bottom: 1.6rem;
 }
 
-.modal-lead {
+.case-title {
+  font-size: clamp(2.8rem, 4.5vw, 3.8rem);
+  line-height: 1.08;
+  letter-spacing: -0.02em;
+  margin-bottom: 1.4rem;
+}
+
+.case-lead {
   font-size: 1.55rem;
   line-height: 1.8;
   color: var(--muted);
   margin-bottom: 3.2rem;
 }
 
-.modal-subtitle {
-  font-size: 1.15rem;
+.case-subtitle {
+  font-size: 1.1rem;
   font-weight: 600;
   letter-spacing: 0.16em;
   text-transform: uppercase;
   color: var(--mainColor);
-  margin-bottom: 1.4rem;
+  margin-bottom: 1.3rem;
 }
 
-.modal-highlights {
+.case-highlights {
   list-style: none;
   display: grid;
   gap: 1.1rem;
   margin-bottom: 3.4rem;
 }
 
-.modal-highlights li {
+.case-highlights li {
   display: flex;
   align-items: flex-start;
   gap: 1.1rem;
@@ -640,18 +591,18 @@
   color: var(--muted);
 }
 
-.modal-highlights svg {
+.case-highlights svg {
   color: var(--mainColor);
   font-size: 1.7rem;
   margin-top: 0.25rem;
   flex-shrink: 0;
 }
 
-.modal .project-tech {
+.case .project-tech {
   margin-bottom: 3.2rem;
 }
 
-.modal-actions {
+.case-actions {
   display: flex;
   flex-wrap: wrap;
   gap: 1rem;
@@ -697,12 +648,12 @@
     padding: 3rem;
   }
 
-  .modal-cover {
-    height: 20rem;
+  .case-cover {
+    height: 22rem;
   }
 
-  .modal-body {
-    padding: 3rem;
+  .case-body {
+    padding: 2.8rem 2.4rem 3.4rem;
   }
 }
 
@@ -745,35 +696,25 @@
     font-size: 2rem;
   }
 
-  .modal-backdrop {
-    padding: 1rem;
-    align-items: end;
+  .case-cover {
+    height: 18rem;
+    padding: 2rem;
   }
 
-  .modal {
-    max-height: 92vh;
-    border-radius: 2.2rem;
+  .case-icons {
+    right: 2rem;
+    bottom: 2rem;
   }
 
-  .modal-cover {
-    height: 16rem;
-    padding: 1.8rem;
+  .case-body {
+    padding: 2.4rem 2rem 3rem;
   }
 
-  .modal-cover-icons {
-    right: 1.8rem;
-    bottom: 1.8rem;
-  }
-
-  .modal-body {
-    padding: 2.4rem;
-  }
-
-  .modal-lead {
+  .case-lead {
     font-size: 1.45rem;
   }
 
-  .modal-actions .btn {
+  .case-actions .btn {
     flex: 1 1 100%;
   }
 }

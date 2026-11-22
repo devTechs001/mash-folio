@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { Link, Route, Routes, useLocation } from 'react-router-dom';
 import { FiArrowUp } from 'react-icons/fi';
 import Navbar from './components/Navbar';
+import SocialRail from './components/SocialRail';
 import Footer from './pages/Footer';
 import LandingPage from './pages/LandingPage';
 import About from './pages/About';
@@ -172,6 +173,8 @@ export default function App() {
         theme={theme}
         onToggleTheme={() => setTheme((current) => (current === 'dark' ? 'light' : 'dark'))}
       />
+
+      <SocialRail />
 
       <main
         className="app-main page-enter"

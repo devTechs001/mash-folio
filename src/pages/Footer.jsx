@@ -10,12 +10,10 @@ const exploreLinks = [
   { to: '/contact', label: 'Contact' },
 ];
 
-const elsewhere = [
-  { label: 'GitHub', href: 'https://github.com/devTechs001' },
-  { label: 'LinkedIn', href: 'https://www.linkedin.com/in/devtechs001' },
-  { label: 'X / Twitter', href: 'https://x.com/devtechs001' },
-  { label: 'Email', href: `mailto:${profile.email}` },
-];
+const elsewhere = profile.socials.map((social) => ({
+  label: social.label,
+  href: social.href,
+}));
 
 export default function Footer() {
   const year = new Date().getFullYear();

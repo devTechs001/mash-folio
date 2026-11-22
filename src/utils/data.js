@@ -20,14 +20,36 @@ export const profile = {
   availability: 'Available for new projects',
   responseTime: 'Replies within 24 hours',
   socials: [
-    { label: 'GitHub', href: 'https://github.com/devTechs001', icon: 'github' },
+    {
+      label: 'GitHub',
+      handle: '@devTechs001',
+      href: 'https://github.com/devTechs001',
+      icon: 'github',
+    },
     {
       label: 'LinkedIn',
+      handle: 'in/devtechs001',
       href: 'https://www.linkedin.com/in/devtechs001',
       icon: 'linkedin',
     },
-    { label: 'X / Twitter', href: 'https://x.com/devtechs001', icon: 'twitter' },
-    { label: 'Email', href: 'mailto:hello@mashfolio.dev', icon: 'mail' },
+    {
+      label: 'X / Twitter',
+      handle: '@devtechs001',
+      href: 'https://x.com/devtechs001',
+      icon: 'twitter',
+    },
+    {
+      label: 'Dev.to',
+      handle: '@devtechs001',
+      href: 'https://dev.to/devtechs001',
+      icon: 'devto',
+    },
+    {
+      label: 'Email',
+      handle: 'hello@mashfolio.dev',
+      href: 'mailto:hello@mashfolio.dev',
+      icon: 'mail',
+    },
   ],
 };
 
@@ -163,6 +185,97 @@ export const experience = [
       'Delivered 20+ responsive marketing pages with a strong focus on Core Web Vitals',
       'Automated repetitive build and deployment steps with small Node scripts',
     ],
+  },
+];
+
+
+export const processSteps = [
+  {
+    number: '01',
+    icon: 'search',
+    title: 'Discover',
+    text: 'A working session to pin down the problem, the people and what success actually looks like. No decks, just questions.',
+  },
+  {
+    number: '02',
+    icon: 'design',
+    title: 'Shape it',
+    text: 'Wireframes and a technical plan side by side — so the interface and the data model stop surprising each other later.',
+  },
+  {
+    number: '03',
+    icon: 'build',
+    title: 'Build',
+    text: 'Small, reviewable increments with a live preview from week one. You see progress instead of status reports.',
+  },
+  {
+    number: '04',
+    icon: 'grow',
+    title: 'Launch & iterate',
+    text: 'Ship, measure, refine. I stay around after launch for the fixes and improvements only real users can reveal.',
+  },
+];
+
+export const testimonials = [
+  {
+    quote:
+      'Mash took a half-formed idea and turned it into a product our customers actually understand. The dashboard he built cut our support tickets by a third in the first month.',
+    name: 'Amina Otieno',
+    role: 'Product Lead',
+    company: 'Nimbus',
+    initials: 'AO',
+    accent: ['#00e5ff', '#4f8cff'],
+  },
+  {
+    quote:
+      'He is the rare developer who pushes back on the right things — scope, not quality. We shipped two weeks early and the codebase is still a pleasure to work in.',
+    name: 'Daniel Kimani',
+    role: 'Founder',
+    company: 'Savannah Labs',
+    initials: 'DK',
+    accent: ['#14b8a6', '#00e5ff'],
+  },
+  {
+    quote:
+      'Our site went from 58 to 99 on Lighthouse without a redesign. Mash documented everything so our own team could keep it that way.',
+    name: 'Grace Wanjiru',
+    role: 'Marketing Director',
+    company: 'Campus Connect',
+    initials: 'GW',
+    accent: ['#8b5cf6', '#22d3ee'],
+  },
+];
+
+export const articles = [
+  {
+    title: 'Why your React app feels slow',
+    excerpt:
+      'Four fixes that actually move the needle — from route-level splitting to the re-render you did not know you were causing.',
+    date: 'May 2025',
+    readingTime: '7 min read',
+    tags: ['React', 'Performance'],
+    source: 'Dev.to',
+    url: 'https://dev.to/devtechs001',
+  },
+  {
+    title: 'Designing forms people do not hate',
+    excerpt:
+      'Validation timing, error wording and the small layout decisions that decide whether someone finishes your form.',
+    date: 'Feb 2025',
+    readingTime: '6 min read',
+    tags: ['UX', 'Accessibility'],
+    source: 'Dev.to',
+    url: 'https://dev.to/devtechs001',
+  },
+  {
+    title: 'A local-first architecture you can ship this week',
+    excerpt:
+      'IndexedDB, an optimistic sync queue and a healthy distrust of the network — without rewriting your whole stack.',
+    date: 'Nov 2024',
+    readingTime: '9 min read',
+    tags: ['Architecture', 'IndexedDB'],
+    source: 'Dev.to',
+    url: 'https://dev.to/devtechs001',
   },
 ];
 

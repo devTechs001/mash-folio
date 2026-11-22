@@ -2,25 +2,15 @@ import { Link } from 'react-router-dom';
 import {
   FiArrowRight,
   FiCheckCircle,
-  FiCode,
-  FiLayout,
-  FiServer,
-  FiZap,
   FiMapPin,
   FiCoffee,
 } from 'react-icons/fi';
-import { about, experience, profile, services, stats, techStack } from '../utils/data';
+import Services from '../components/Services';
+import { about, experience, profile, stats, techStack } from '../utils/data';
 import { useScrollReveal } from '../utils/useScrollReveal';
 import { getTechIcon } from '../utils/techIcons';
 import aboutVisual from '../assets/about-visual.jpg';
 import '../styles/LandingPage.css';
-
-const serviceIcons = {
-  code: FiCode,
-  layout: FiLayout,
-  server: FiServer,
-  zap: FiZap,
-};
 
 export default function About() {
   const revealRef = useScrollReveal();
@@ -100,35 +90,7 @@ export default function About() {
           ))}
         </div>
 
-        {/* What I do */}
-        <section className="section about-subsection">
-          <div className="section-head">
-            <span className="eyebrow reveal">What I do</span>
-            <h2 className="title reveal">
-              How I can <span className="accent">help</span>
-            </h2>
-            <p className="section-sub reveal">
-              From a single landing page to a full product, I plug in wherever the work needs
-              doing.
-            </p>
-          </div>
-
-          <div className="services-grid">
-            {services.map((service) => {
-              const Icon = serviceIcons[service.icon] ?? FiCode;
-
-              return (
-                <article className="service-card reveal" key={service.title}>
-                  <span className="service-icon">
-                    <Icon aria-hidden="true" />
-                  </span>
-                  <h3>{service.title}</h3>
-                  <p>{service.text}</p>
-                </article>
-              );
-            })}
-          </div>
-        </section>
+        <Services className="about-subsection" />
 
         {/* Experience */}
         <section className="section about-subsection">
